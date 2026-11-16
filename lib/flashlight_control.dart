@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:torch_light/torch_light.dart';
 
@@ -108,8 +110,11 @@ class _FlashlightActionState extends State<FlashlightAction>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // Fire-and-forget cleanup: dispose cannot await.
-    _switchOff();
+    // Do not call setState while disposing. The hardware must still be
+    // asked to shut off if the app is closing with torch enabled.
+    if (enabled) {
+      unawaited(widget.hardware.disable().catchError((Object _) {}));
+    }
     super.dispose();
   }
 
