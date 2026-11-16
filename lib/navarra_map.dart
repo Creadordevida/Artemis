@@ -68,6 +68,8 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
   bool offlineMode = false;
   late final Future<List<Polyline>> _offlineRoads = loadOfflineNavarraRoads();
   late final Future<OfflineStreetPaths> _streetPaths = loadOfficialStreetPaths();
+  late final Future<OfflineStreetPaths> _bestStreets =
+      loadCadastralStreetPaths().onError((error, stack) => _streetPaths);
   String filter = 'all';
 
   LatLng get startPoint =>
@@ -181,7 +183,7 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                       ),
                       if (offlineMode)
                         const Text(
-                          'Cartografía local de carreteras; el detalle adicional de calles y caminos está sujeto a disponibilidad del paquete oficial. No calcula rutas ni garantiza recorridos peatonales.',
+                          'Carreteras, calles catastrales y caminos oficiales cuando existen datos. Esta vista no calcula rutas ni garantiza accesos peatonales.',
                           style: TextStyle(fontSize: 12, color: Color(0xFF526170)),
                         ),
                       const SizedBox(height: 5),
@@ -265,11 +267,11 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                             Builder(builder: (mapContext) {
                               // Do not render tens of thousands of small
                               // features when showing the whole region.
-                              if (MapCamera.of(mapContext).zoom < 11) {
+                              if (MapCamera.of(mapContext).zoom < 12) {
                                 return const SizedBox.shrink();
                               }
                               return FutureBuilder<OfflineStreetPaths>(
-                                future: _streetPaths,
+                                future: _bestStreets,
                                 builder: (context, data) => PolylineLayer<Object>(
                                   polylines: data.data?.streets ?? const <Polyline<Object>>[],
                                 ),
@@ -309,7 +311,7 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                                 return const SizedBox.shrink();
                               }
                               return FutureBuilder<OfflineStreetPaths>(
-                                future: _streetPaths,
+                                future: _bestStreets,
                                 builder: (context, data) {
                                   final labels = data.data?.labels ?? const <OfflineStreetLabel>[];
                                   final visible = labels
