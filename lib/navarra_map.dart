@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 
 import 'offline_resources.dart';
 import 'offline_roads.dart';
+import 'offline_streets.dart';
 
 class MapResourceCollection {
   const MapResourceCollection({required this.directory, required this.points});
@@ -66,6 +67,7 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
   bool tileError = false;
   bool offlineMode = false;
   late final Future<List<Polyline>> _offlineRoads = loadOfflineNavarraRoads();
+  late final Future<OfflineStreetPaths> _streetPaths = loadOfficialStreetPaths();
   String filter = 'all';
 
   LatLng get startPoint =>
@@ -179,7 +181,7 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                       ),
                       if (offlineMode)
                         const Text(
-                          'Vista local limitada: muestra carreteras, no todas las calles ni caminos. No calcula rutas ni indica que sean seguras para caminar.',
+                          'Cartografía local de carreteras; el detalle adicional de calles y caminos está sujeto a disponibilidad del paquete oficial. No calcula rutas ni garantiza recorridos peatonales.',
                           style: TextStyle(fontSize: 12, color: Color(0xFF526170)),
                         ),
                       const SizedBox(height: 5),
@@ -255,6 +257,23 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                                 }
                                 return PolylineLayer(polylines: snapshot.data!);
                               },
+                            ),
+                          // Official city streets and paths are optional until
+                          // a complete, validated asset is bundled. Failure must
+                          // never blank the existing offline road overview.
+                          if (offlineMode)
+                            FutureBuilder<OfflineStreetPaths>(
+                              future: _streetPaths,
+                              builder: (context, data) => PolylineLayer(
+                                polylines: data.data?.streets ?? const [],
+                              ),
+                            ),
+                          if (offlineMode)
+                            FutureBuilder<OfflineStreetPaths>(
+                              future: _streetPaths,
+                              builder: (context, data) => PolylineLayer(
+                                polylines: data.data?.paths ?? const [],
+                              ),
                             ),
                           if (!offlineMode)
                             TileLayer(
