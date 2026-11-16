@@ -28,3 +28,22 @@ jobs:
       - run: flutter test
       - name: Confirm no APK generation
         run: test ! -e build/app/outputs/flutter-apk/app-debug.apk
+
+  verify-street-wfs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bounded official street and path WFS probe
+        run: python tools/probe_idena_wfs.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: idena-wfs-streets-investigation
+          path: build/wfs-probe/idena_wfs_capabilities_audit.json
+          if-no-files-found: error
+          retention-days: 7
