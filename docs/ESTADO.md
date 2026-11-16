@@ -31,3 +31,11 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Manifest Android incorporado con permisos de ubicación foreground y consulta del marcador telefónico.
 - Test actualizado para comprobar visibilidad de 112 incluso después de hacer scroll.
 - **Pendiente:** confirmar nueva ejecución completa de CI y prueba de APK; no declarar compilado hasta resultado correcto.
+
+## Continuación: catálogo local y mapa vectorial — 16/11/2026
+- GitHub Actions de la rama develop: compilación Android completada con éxito (run 43867269437); aún sin pruebas en dispositivo.
+- PR #7: directorio territorial en assets, validador de procedencia/fecha/coordenadas, pruebas unitarias y listado local de teléfonos; el único dato público incorporado por ahora es 112, sin geolocalización.
+- PR #8 (experimental): MapLibre con teselas vectoriales reales de Navarra (Geofabrik Shortbread ~75 MB); el CI descarga el paquete, lo empaqueta y la app lo copiará al almacenamiento interno para consulta sin red.
+- Primera ejecución experimental: extracción de Geofabrik conseguida, análisis rechazó sintaxis Dart no habilitada por SDK mínimo 3.5; corregido a Dart >=3.13. Nueva validación pendiente.
+- Se dibujan agua, calles, edificios y un marcador diferente para ubicación actual o histórica. Etiquetas de localidades, POI oficiales y rutas todavía pendientes.
+- Las ramas de mapa y datos siguen sin fusionar hasta confirmación de compilación y prueba física; uso en emergencias no autorizado.
