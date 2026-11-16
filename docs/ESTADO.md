@@ -1,0 +1,47 @@
+# Estado real de Artemis — 2026-11-16
+## Confirmado
+- Repositorio público `Creadordevida/Artemis` creado por el propietario.
+- Acceso de escritura confirmado.
+- Rama `develop` abierta.
+- Prototipo de interfaz inicial Flutter en `lib/main.dart`.
+- Acceso mediante intento de abrir marcador telefónico 112 (no se ha probado en Android).
+- Intento GPS con permiso, reserva de última posición etiquetada y referencia manual textual (NO geocodificada).
+- Documentación de producto, seguridad, método y datos.
+
+## Sin validar
+- Compilación Android: pendiente CI y prueba.
+- GPS real, permiso y retorno de marcador telefónico.
+- Diseño en pantalla real, accesibilidad y textos con menores.
+
+## Pendiente (no operativo)
+- Mapa offline, calles, caminos y recursos geolocalizados.
+- Buscador y direcciones offline; rutas.
+- Horarios de centros, farmacias, directorios oficiales y validación.
+- Alertas online verificadas.
+- Linterna, identidad gráfica incorporada en assets nativos.
+- APK de prueba y tests físicos.
+
+## Próximo hito
+CI Android; estructurar plataforma; mapa local básico con paquete real y medición; directorio oficial local. Ninguna prueba pública antes de seguridad y QA.
+
+## Continuación — 2026-11-16
+- Detectado y corregido en CI: Flutter generaba `test/widget_test.dart` con el contador de demostración, incompatible con `ArtemisApp`; se elimina en la preparación.
+- Análisis estático: superado en una ejecución de CI (solo advertencia informativa deprecación `material.dart` en Flutter 3.50).
+- Detectado por test de interfaz: botón 112 fuera de la ventana en pantalla pequeña. Corregido con botón fijo inferior persistente.
+- Manifest Android incorporado con permisos de ubicación foreground y consulta del marcador telefónico.
+- Test actualizado para comprobar visibilidad de 112 incluso después de hacer scroll.
+- **Pendiente:** confirmar nueva ejecución completa de CI y prueba de APK; no declarar compilado hasta resultado correcto.
+
+## Continuación — directorio telefónico offline — 2026-11-16
+- Comprobada compilación debug previa: run 43867269437, análisis, tests y APK correctos (artefacto de pruebas disponible, no apto para emergencias).
+- Añadido `lib/help_contacts.dart`: seis contactos guardados localmente y metadatos de procedencia, con fecha de verificación. 112, ANAR 116111, consejo sanitario Navarra, farmacias de guardia, Guardia Civil y carreteras.
+- Añadido acceso `Teléfonos` en pantalla principal con fichas y apertura del marcador.
+- Añadido test de estructura de datos; nueva compilación todavía por confirmar.
+- **Advertencia:** estos contactos no constituyen directorio físico geolocalizado. No se han incorporado mapas, horarios presenciales ni rutas; no distribuir como herramienta operativa.
+
+## Continuación — contactos y coordenadas — 2026-11-16
+- Directorio local de seis teléfonos oficiales con fuente y fecha en `lib/help_contacts.dart`.
+- Pantalla «Teléfonos» con apertura de marcador; el funcionamiento en dispositivo no está todavía validado.
+- Copia de coordenadas al portapapeles indicando expresamente si son una posición anterior.
+- Registro documental de cada fuente en `docs/TELEFONOS_NAVARRA.md`.
+- Se mantiene pendiente la verificación CI para estos cambios; no confundir con el éxito de la APK anterior.
