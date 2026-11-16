@@ -27,7 +27,7 @@ jobs:
       - name: Fetch pinned-schema Navarra offline vector package
         run: |
           mkdir -p assets/maps
-          curl --fail --location --retry 3 --connect-timeout 25 \
+          curl --fail --location --retry 2 --connect-timeout 20 --speed-limit 1024 --speed-time 25 --max-time 240 \
             "https://download.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles" \
             -o assets/maps/navarra.mbtiles
           test "$(stat -c%s assets/maps/navarra.mbtiles)" -gt 1000000
