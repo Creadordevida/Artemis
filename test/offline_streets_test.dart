@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:artemis/offline_streets.dart';
 
 void main() {
@@ -56,6 +58,25 @@ void main() {
           (point.longitude + 1.520).abs() < 0.03,
     ));
     expect(coversElizondo, isTrue);
+  });
+
+  test('Solo dibuja trazados de la región visible', () {
+    final parsed = parseOfficialStreetPaths(jsonEncode({
+      'streets': [
+        [[42.81, -1.64], [42.82, -1.65]],
+        [[42.46, -1.60], [42.47, -1.61]],
+        [[42.80, -1.70], [42.80, -1.60]],
+      ],
+      'paths': [],
+      'labels': [],
+    }));
+    final viewport = LatLngBounds(
+      const LatLng(42.79, -1.66), const LatLng(42.84, -1.62));
+    final visible = visibleOfflineLines(parsed.streets, viewport);
+    expect(visible.length, 2);
+    // A line that crosses the screen must remain even if neither
+    // endpoint falls inside the viewport.
+    expect(visible.last.points.last.longitude, closeTo(-1.60, 0.001));
   });
 
 }
