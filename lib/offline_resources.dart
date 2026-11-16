@@ -53,7 +53,15 @@ class OfflinePlace {
 Future<List<OfflinePlace>> loadOfflinePlaces() async {
   final source = await rootBundle.loadString('assets/offline/navarra_frontline.json');
   final entries = jsonDecode(source) as List<dynamic>;
-  return entries.map((e) => OfflinePlace.fromJson(e as Map<String, dynamic>)).toList(growable: false);
+  // Fail closed: older packages without a public-ownership flag must never
+  // silently present a private medical establishment as a public help centre.
+  final publicOnly = entries.where((raw) {
+    final item = raw as Map<String, dynamic>;
+    if (item['category'] != 'centro_sanitario') return true;
+    return item['public_ownership_verified'] == true;
+  });
+  return publicOnly.map((e) => OfflinePlace.fromJson(e as Map<String, dynamic>))
+      .toList(growable: false);
 }
 
 class OfflineResourcesPage extends StatefulWidget {
