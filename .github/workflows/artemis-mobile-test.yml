@@ -1,7 +1,7 @@
 name: Artemis mobile map test APK - verified build
 on:
-  push:
-    branches: [feat/mapa-online-recursos]
+  pull_request:
+    branches: [feat/datos-oficiales-navarra]
     paths:
       - 'qa/mobile-test-request.txt'
   workflow_dispatch:
