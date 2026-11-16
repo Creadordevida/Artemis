@@ -77,3 +77,12 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Cartografía: localizada fuente MBTiles Shortbread de Navarra (~76,8 MB) y creado un validador de capas y metadatos. La primera descarga desde GitHub Actions falló por conexión al servidor Geofabrik principal (curl error 7). Se ha configurado el espejo público `download-ext2.geofabrik.de`; **la disponibilidad y decodificación no están confirmadas aún**.
 - **No hay mapa offline integrado**: los recursos siguen disponibles en un listado local con distancias solo para dependencias policiales con geometría; no se asignan coordenadas a centros sanitarios a partir de direcciones.
 - Próximas puertas: recuperar/validar MBTiles, construir estilo Shortbread con fuentes y recursos locales, incluir en APK, probar mapa realmente en modo avión, medir tamaño instalado y QA de rutas.
+
+## Linterna y control del pipeline — 16/11/2026 (continuación)
+- Añadido botón de linterna en la barra de ARTEMIS (`lib/flashlight_control.dart`) y dependencia nativa `torch_light ^2.0.0`.
+- Funciones: pulsar para encender/apagar flash, alternativa de pantalla blanca con salida visible si falla o no existe flash, intento de apagado al salir de la app; la luz puede permanecer encendida mientras se consultan otras pantallas internas.
+- Pruebas automatizadas con hardware simulado: encendido/apagado, sin cámara y error de cámara. **El funcionamiento físico todavía requiere prueba en un dispositivo Android**.
+- `.github/workflows/android.yml` reducido a análisis, tests y compilación Android. Importación de datos oficiales y pruebas MBTiles se ejecutan en workflows independientes, solo por cambios relevantes o bajo activación explícita.
+- Fallo real del mapa: Geofabrik principal cerró conexión (curl 7); espejo `download-ext2.geofabrik.de` no resuelve DNS (curl 6) desde runners GitHub. No hay MBTiles validado ni mapa offline en la app.
+- Fuentes cartográficas: MBTiles Navarra Shortbread anunciado por Geofabrik en su índice, pendiente de obtención/inspección. No presentar como integrado hasta obtener muestra y renderizar en Android sin conexión.
+- CI con linterna: verificar resultado del run 43880681600 antes de declararla compilada; la ausencia de pruebas físicas impide darla como validada para usuario final.
