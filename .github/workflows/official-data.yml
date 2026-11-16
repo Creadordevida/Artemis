@@ -1,0 +1,33 @@
+name: Build official Navarra resource pack (review only)
+on:
+  push:
+    branches: [feat/datos-oficiales-navarra]
+    paths:
+      - 'tools/build_offline_navarra.py'
+      - '.github/workflows/official-data.yml'
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install import dependencies
+        run: python -m pip install --disable-pip-version-check pyshp==2.3.1 pyproj==3.7.2
+      - name: Validate importer syntax
+        run: python -m py_compile tools/build_offline_navarra.py
+      - name: Download and validate official datasets
+        run: python tools/build_offline_navarra.py --output build/offline-data
+      - name: Upload review pack (NOT app data yet)
+        uses: actions/upload-artifact@v4
+        with:
+          name: navarra-official-sources-review
+          path: build/offline-data/
+          if-no-files-found: error
+          retention-days: 14
