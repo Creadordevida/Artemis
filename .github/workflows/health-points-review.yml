@@ -5,12 +5,6 @@ on:
     paths:
       - 'tools/build_health_geopoints.py'
       - '.github/workflows/health-points-review.yml'
-  pull_request:
-    branches: [feat/datos-oficiales-navarra]
-    paths:
-      - 'tools/build_health_geopoints.py'
-      - '.github/workflows/health-points-review.yml'
-
 permissions:
   contents: write
 
