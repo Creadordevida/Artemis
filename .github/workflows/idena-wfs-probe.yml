@@ -1,0 +1,29 @@
+name: Probe official IDENA street and footpath WFS (no APK)
+on:
+  push:
+    branches: [feat/mapa-online-recursos]
+    paths:
+      - 'tools/probe_idena_wfs.py'
+      - '.github/workflows/idena-wfs-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wfs-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Probe WFS with 1 feature per requested layer only
+        run: python tools/probe_idena_wfs.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: navarra-street-path-wfs-probe
+          path: build/wfs-probe/idena_wfs_capabilities_audit.json
+          if-no-files-found: error
+          retention-days: 14
