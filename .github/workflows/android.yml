@@ -96,7 +96,7 @@ jobs:
       - name: Download Navarra Shortbread vector map
         run: |
           mkdir -p build
-          curl --fail --location --retry 2 --connect-timeout 20 --max-time 300 https://download.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles --output build/navarra.mbtiles
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 300 https://download-ext2.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles --output build/navarra.mbtiles
       - name: Verify archive and layer schema
         run: python tools/inspect_navarra_tiles.py build/navarra.mbtiles
       - name: Store verification report only
