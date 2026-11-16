@@ -5,11 +5,6 @@ on:
     paths:
       - 'tools/audit_offline_roads.py'
       - '.github/workflows/roads-audit.yml'
-  pull_request:
-    branches: [feat/datos-oficiales-navarra]
-    paths:
-      - 'tools/audit_offline_roads.py'
-      - '.github/workflows/roads-audit.yml'
 permissions:
   contents: read
 jobs:
