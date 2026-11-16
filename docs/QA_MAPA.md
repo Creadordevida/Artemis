@@ -29,3 +29,9 @@ Solamente para una prueba que no pueda verificarse en tests de código, como ren
 
 ## Duplicidad de tareas
 La extracción completa debe realizarse en una tarea dedicada y solo al variar la fuente o el importador; nunca en cada commit de UI. Los pipelines de verificación de código deben limitarse a análisis y tests.
+
+
+## Auditoría de cobertura añadida
+- Un paquete completo según `numberMatched` de WFS NO garantiza cartografía de todas las localidades: contrastar con muestras espaciales.
+- Verificar especialmente Elizondo/Baztan; no se han encontrado trazados `CARTO1` en una ventana aproximada de 0,03° alrededor de Elizondo. Esta comprobación no afirma ausencia de calles, sino falta de cobertura de esas capas.
+- Investigar `CATAST_Lin_CalleEje` y `CATAST_Txt_Calle` para suplir esa cobertura. Mantener atribución CC BY 4.0 y fecha de extracción por capa.
