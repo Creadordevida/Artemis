@@ -116,7 +116,7 @@ def health_rows(data: bytes, source: str):
     reader = csv.DictReader(io.StringIO(decoded), delimiter=";") if decoded.splitlines()[0].count(";") > decoded.splitlines()[0].count(",") else csv.DictReader(io.StringIO(decoded))
     rows = []
     for index, raw in enumerate(reader):
-        fields = {re.sub(r"\\s+", " ", k or "").strip().lower(): normalized(v) for k, v in raw.items()}
+        fields = {re.sub(r"\s+", " ", k or "").strip().lower(): normalized(v) for k, v in raw.items()}
         def pick(*candidates):
             for k, v in fields.items():
                 if any(c in k for c in candidates) and v:
