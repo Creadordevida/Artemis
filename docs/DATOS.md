@@ -14,3 +14,8 @@ Descarga validada, normalización, deduplicación, control de fuentes, transacci
 
 ## Riesgos por resolver
 Cobertura y vigencia de horarios, atención pediátrica, farmacias de guardia, trazado rural, difusión de datos no oficiales, derechos de uso, coste de cartografía y modo avión.
+
+
+## Filtro verificado de titularidad pública
+CSV Salud Navarra: campo `Dependencia funcional`. Valores admitidos de forma estricta: `SNS-O`, `Municipal`, `Otros del Gobierno de Navarra`, `Otras entidades u organismos públicos` y `Otros Públicos`. Valores privados y otros desconocidos se excluyen. Se limita a tipologías útiles para localizar ayuda: centros de salud, consultorios de atención primaria, hospitales generales, centros de salud mental y atención a la salud sexual y reproductiva; aun siendo públicos no presupone urgencias ni horarios.
+Importación auditada con `tools/audit_public_health.py`. Runtime también bloquea cualquier registro sanitario sin `public_ownership_verified: true`. Dependencias policiales públicas se admiten por categoría de la fuente oficial.
