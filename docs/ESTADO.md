@@ -63,3 +63,10 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Acceso destacado de Enfermería de Consejo Sanitario 948 290 290 en inicio, sin promesa de disponibilidad horaria; 112 permanente.
 - Fuentes/hashes y hora de extracción en `assets/offline/manifest.json`.
 - **Pendiente:** comprobación final de CI Android después de la incorporación del paquete; verificar teléfonos, fachadas/entradas, horarios y navegación en dispositivo; no declarar apto para emergencias.
+
+## Orientación sin conexión — 2026-11-16
+- Creado `lib/help_orientation.dart`: árbol determinista de 6 situaciones. No usa Internet ni IA, no diagnostica ni recopila respuestas.
+- Cada situación tiene un primer paso concreto y alternativa de ayuda humana. Acceso permanente a 112; ANAR 116111 o Enfermería Consejo Sanitario 948 290 290 cuando corresponde.
+- Pantalla inicial «No sé qué hacer» enlazada al nuevo recorrido.
+- Creado `test/help_orientation_test.dart` para comprobar contenido, regreso, contacto y botón de emergencias.
+- **Pendiente:** confirmar CI, revisar contenido con profesionales competentes, comprobar accesibilidad y funcionamiento en Android físico; no ofrecer aún como servicio de emergencias al público.
