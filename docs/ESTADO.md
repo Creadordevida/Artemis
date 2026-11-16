@@ -86,3 +86,11 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Fallo real del mapa: Geofabrik principal cerró conexión (curl 7); espejo `download-ext2.geofabrik.de` no resuelve DNS (curl 6) desde runners GitHub. No hay MBTiles validado ni mapa offline en la app.
 - Fuentes cartográficas: MBTiles Navarra Shortbread anunciado por Geofabrik en su índice, pendiente de obtención/inspección. No presentar como integrado hasta obtener muestra y renderizar en Android sin conexión.
 - CI con linterna: verificar resultado del run 43880681600 antes de declararla compilada; la ausencia de pruebas físicas impide darla como validada para usuario final.
+
+## APK debug con linterna verificada en CI — 2026-11-16
+- Run GitHub Actions **43880681600**: análisis, tests y compilación debug Android **correctos**. Artefacto `artemis-debug-prototype`, ID `14232331780`.
+- APK extraída del artefacto GitHub: `app-debug.apk` de **150.156.848 bytes** (APK debug, no versión de distribución optimizada). SHA-256: `70224ceacfd2d7cb4c490b0bb28728a10e79b7198eb591f45fdfe93d30ec972c`.
+- La compresión del artefacto ocupa 71.455.144 bytes.
+- `test/flashlight_control_test.dart` supera casos con hardware simulado (encendido/apagado, cámara sin flash, error nativo); faltan pruebas reales en Android.
+- Cartografía offline sigue pendiente y **no forma parte de esta APK**.
+- **Advertencia imprescindible**: prototipo de desarrollo para pruebas técnicas, no usar como herramienta principal ante emergencias reales. Mantener 112 como referencia directa.
