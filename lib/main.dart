@@ -6,6 +6,7 @@ import 'help_contacts.dart';
 import 'offline_resources.dart';
 import 'help_orientation.dart';
 import 'flashlight_control.dart';
+import 'navarra_map.dart';
 
 void main() => runApp(const ArtemisApp());
 
@@ -312,19 +313,35 @@ class _HomeScreenState extends State<HomeScreen> {
           ]),
         )),
         const SizedBox(height: 16),
-        Container(
-          height: 160,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(color: const Color(0xFFE7ECE8),
-            borderRadius: BorderRadius.circular(18)),
-          child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(Icons.map_outlined, size: 38, color: navy),
-            SizedBox(height: 8),
-            Text('Mapa de Navarra', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
-            SizedBox(height: 4),
-            Text('La cartografía offline todavía no está instalada.',
-              textAlign: TextAlign.center),
-          ]),
+        Material(
+          color: const Color(0xFFE7ECE8),
+          borderRadius: BorderRadius.circular(18),
+          child: InkWell(
+            key: const ValueKey('open-navarra-map'),
+            borderRadius: BorderRadius.circular(18),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+              builder: (_) => NavarraMapPage(
+                currentLatitude: isCurrent ? position?.latitude : null,
+                currentLongitude: isCurrent ? position?.longitude : null,
+                onDial: _dial,
+              ),
+            )),
+            child: const SizedBox(
+              height: 155,
+              child: Padding(
+                padding: EdgeInsets.all(18),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Icon(Icons.map_outlined, size: 38, color: navy),
+                  SizedBox(height: 8),
+                  Text('Abrir mapa de Navarra', style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 17)),
+                  SizedBox(height: 4),
+                  Text('Calles online · puntos públicos guardados sin Internet',
+                    textAlign: TextAlign.center),
+                ]),
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 18),
         Text('¿Qué necesitas?', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
