@@ -273,7 +273,10 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                               return FutureBuilder<OfflineStreetPaths>(
                                 future: _bestStreets,
                                 builder: (context, data) => PolylineLayer<Object>(
-                                  polylines: data.data?.streets ?? const <Polyline<Object>>[],
+                                  polylines: visibleOfflineLines(
+                                    data.data?.streets ?? const <Polyline<Object>>[],
+                                    MapCamera.of(mapContext).visibleBounds,
+                                  ),
                                 ),
                               );
                             }),
@@ -285,7 +288,10 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                               return FutureBuilder<OfflineStreetPaths>(
                                 future: _streetPaths,
                                 builder: (context, data) => PolylineLayer<Object>(
-                                  polylines: data.data?.paths ?? const <Polyline<Object>>[],
+                                  polylines: visibleOfflineLines(
+                                    data.data?.paths ?? const <Polyline<Object>>[],
+                                    MapCamera.of(mapContext).visibleBounds,
+                                  ),
                                 ),
                               );
                             }),
