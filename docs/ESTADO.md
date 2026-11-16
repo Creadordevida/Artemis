@@ -23,3 +23,11 @@
 
 ## Próximo hito
 CI Android; estructurar plataforma; mapa local básico con paquete real y medición; directorio oficial local. Ninguna prueba pública antes de seguridad y QA.
+
+## Continuación — 2026-11-16
+- Detectado y corregido en CI: Flutter generaba `test/widget_test.dart` con el contador de demostración, incompatible con `ArtemisApp`; se elimina en la preparación.
+- Análisis estático: superado en una ejecución de CI (solo advertencia informativa deprecación `material.dart` en Flutter 3.50).
+- Detectado por test de interfaz: botón 112 fuera de la ventana en pantalla pequeña. Corregido con botón fijo inferior persistente.
+- Manifest Android incorporado con permisos de ubicación foreground y consulta del marcador telefónico.
+- Test actualizado para comprobar visibilidad de 112 incluso después de hacer scroll.
+- **Pendiente:** confirmar nueva ejecución completa de CI y prueba de APK; no declarar compilado hasta resultado correcto.
