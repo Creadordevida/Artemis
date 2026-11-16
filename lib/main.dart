@@ -50,12 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String status = 'Puedes buscar ayuda aunque no tengamos tu ubicación.';
   String? manualPlace;
 
-  @override
-  void initState() {
-    super.initState();
-    _locate();
-  }
-
   Future<void> _locate() async {
     if (locating) return;
     setState(() { locating = true; status = 'Buscando tu ubicación. La ayuda sigue disponible.'; });
@@ -240,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
         fontWeight: FontWeight.w800, letterSpacing: 1.8)), actions: [
           const FlashlightAction(),
           IconButton(
-            tooltip: 'Volver a buscar ubicación',
+            tooltip: 'Obtener mi ubicación si lo deseo',
             onPressed: locating ? null : _locate,
             icon: const Icon(Icons.my_location),
           ),
@@ -307,6 +301,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
             if (locating) const Padding(padding: EdgeInsets.only(top: 8), child: LinearProgressIndicator()),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: locating ? null : _locate,
+              icon: const Icon(Icons.my_location_outlined),
+              label: const Text('Obtener mi ubicación'),
+            ),
             const SizedBox(height: 12),
             OutlinedButton.icon(onPressed: _choosePlace, icon: const Icon(Icons.edit_location_alt_outlined),
               label: const Text('Indicar dónde estoy')),
@@ -336,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text('Abrir mapa de Navarra', style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 17)),
                   SizedBox(height: 4),
-                  Text('Calles online · puntos públicos guardados sin Internet',
+                  Text('Calles y recursos públicos offline · mapa online opcional',
                     textAlign: TextAlign.center),
                 ]),
               ),
