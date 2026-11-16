@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'offline_resources.dart';
@@ -224,8 +225,12 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                               });
                             },
                           ),
-                          MarkerLayer(
-                            markers: [
+                          MarkerClusterLayerWidget(
+                            options: MarkerClusterLayerOptions(
+                              maxClusterRadius: 48,
+                              size: const Size(44, 44),
+                              padding: const EdgeInsets.all(36),
+                              markers: [
                               ...mapped.map((place) => Marker(
                                 width: 45,
                                 height: 45,
@@ -255,6 +260,23 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                                     size: 27, color: Color(0xFF2567C5)),
                                 ),
                             ],
+                            builder: (context, clusterMarkers) => DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF14283B),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${clusterMarkers.length}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            ),
                           ),
                           // Always visible attribution; no hiding in a popup.
                           const Align(
