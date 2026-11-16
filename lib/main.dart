@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'help_contacts.dart';
 import 'offline_resources.dart';
+import 'help_orientation.dart';
 
 void main() => runApp(const ArtemisApp());
 
@@ -366,8 +367,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _HelpAction(icon: Icons.phone_in_talk_outlined, label: 'Teléfonos',
             onTap: _showContacts),
           _HelpAction(icon: Icons.help_outline, label: 'No sé qué hacer',
-            onTap: () => _showHelp('Vamos a encontrar el siguiente paso',
-              'No hace falta que sepas exactamente qué ocurre. Busca un lugar seguro y habla con alguien de confianza si puedes. Si hay peligro inmediato, llama al 112.')),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+              builder: (_) => HelpOrientationPage(onDial: _dial),
+            ))),
         ]),
         const SizedBox(height: 20),
         const Text('Artemis es un prototipo. Los servicios y el mapa de Navarra están en preparación.',
