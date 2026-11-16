@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "region": "Navarra",
-  "created_utc": "2026-11-16T13:07:03.912925+00:00",
+  "created_utc": "2026-11-16T13:13:26.655045+00:00",
   "license_notice": "CC BY 4.0; verificar atribución concreta del conjunto antes de distribuir",
   "sources": [
     {
@@ -23,5 +23,7 @@
       "record_count": 2246
     }
   ],
-  "frontline_record_count": 343
+  "frontline_record_count": 367,
+  "public_health_count": 304,
+  "public_only_filter": true
 }
