@@ -124,3 +124,14 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Auditoría espacial independiente: existen trazados cerca de Pamplona, Tudela, Estella y Sangüesa, pero las capas `CARTO1_` no muestran cobertura equivalente en Elizondo (Baztan). No describirlas como «callejero completo de Navarra». «Completa» significa que se descargaron TODOS los registros anunciados por estas capas concretas.
 - Se ha localizado una alternativa del Catastro de Navarra, `CATAST_Lin_CalleEje` y `CATAST_Txt_Calle`, para cubrir núcleos no cartografiados a 1:1.000; se está comprobando su estructura mediante WFS. Fuente https://datos.gob.es/es/catalogo/a15002917-callejero-catastral-ejes-de-las-calles1 .
 - Sigue pendiente validar en Android real la representación y fluidez de todas las capas y nombres. **No se ha generado APK**.
+
+## Cartografía catastral integral y QA Android — 16/11/2026
+- Detectada falta de cobertura espacial de las capas 1:1.000 en Elizondo/Baztan. Evitado declarar «mapa completo de Navarra» con esas capas parciales.
+- Fuente catastral verificada: `CATAST_Lin_CalleEje.zip` y `CATAST_Txt_Calle.zip`, directorio público de Navarra `filescartografia.navarra.es/2_CARTOGRAFIA_TEMATICA/2_7_CATASTRO/2_7_1_SHAPEFILE/`, licencia CC BY 4.0.
+- Importador `tools/build_cadastral_navarra.py`: **64.893 polilíneas de calles** y **21.472 etiquetas de calle**, EPSG 25830 → WGS84, simplificación 6m, validación de límites, fuentes SHA-256 y asset de 4.237.415 bytes en `assets/offline/navarra_cadastral_streets.json`; manifiesto independiente.
+- El modo offline del mapa elige ejes catastrales y rótulos; si falla, vuelve a `CARTO1` y conserva la capa de carreteras. Los caminos permanecen de `CARTO1`. Rótulos solo a zoom >=15, max 70 etiquetas dentro de la ventana; calles solo a zoom >=12.
+- CI Flutter: fallo inicial por límites antiguos del parser para 50k líneas/10k rótulos; se corrigieron a topes de 130k/60k, y el análisis y tests terminaron **correctos** (run 43897902610).
+- **Prueba de cobertura Elizondo/Baztan** en `test/offline_streets_test.dart`: superada por el nuevo dataset catastral.
+- Workflow de rutina de Flutter sin descargas GIS ni generación de APK; importadores por cambios de fuente únicamente.
+- Autorización del usuario: APK solo por razones técnicas. Se ha creado `.github/workflows/map-android-qa.yml` para una **única compilación debug de QA cartográfico**: validar rendimientos, memoria, visualización en móvil y modo avión. Aún no constituye validación física ni versión pública apta para emergencias.
+- **Pendientes:** confirmar build del APK QA, probar Android físico y capturas REALES, analizar FPS/tiempos y memoria, mejorar red viaria peatonal y conectividad de caminos, topónimos, alertas y horarios oficiales. No se generan rutas a pie todavía.
