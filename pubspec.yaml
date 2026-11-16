@@ -28,3 +28,5 @@ flutter:
     - assets/offline/manifest.json
     - assets/offline/navarra_sns_geo.json
     - assets/offline/geo_manifest.json
+    - assets/offline/navarra_road_lines.json
+    - assets/offline/navarra_road_manifest.json
