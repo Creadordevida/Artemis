@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'help_contacts.dart';
@@ -277,6 +278,20 @@ class _HomeScreenState extends State<HomeScreen> {
             if (coordinates != null) ...[
               const SizedBox(height: 8),
               SelectableText('${isCurrent ? "Coordenadas obtenidas" : "Últimas coordenadas conocidas"}: $coordinates'),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(
+                    text: '${isCurrent ? "Posición obtenida" : "Posición anterior, NO confirmada actualmente"}: $coordinates',
+                  ));
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Coordenadas copiadas. Indica si corresponden a una ubicación anterior.'),
+                  ));
+                },
+                icon: const Icon(Icons.copy),
+                label: Text(isCurrent ? 'Copiar coordenadas' : 'Copiar posición anterior'),
+              ),
             ],
             if (locating) const Padding(padding: EdgeInsets.only(top: 8), child: LinearProgressIndicator()),
             const SizedBox(height: 12),
