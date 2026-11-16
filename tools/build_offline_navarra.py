@@ -143,6 +143,10 @@ def health_rows(data: bytes, source: str):
             "postal_code": pick("codigo postal"),
             "phone": pick("telefono", "teléfono") or None,
             "type": pick("tipo de centro"),
+            "ownership": pick("dependencia funcional", "titularidad", "dependencia"),
+            # This flag is assigned only after an explicit official source
+            # confirms public ownership. Never infer it from publication in open data.
+            "public_ownership_verified": False,
             "lat": None,
             "lon": None,
             "location_quality": "not_geocoded",
@@ -174,16 +178,39 @@ def build(out: Path, downloader=fetch):
     # Conservative shortlist for an adolescent: exclude private-specialist and
     # commercial consultations from the primary help entry points. Presence
     # does NOT imply emergency or 24h availability.
-    primary_types = {"Centros de salud", "Consultorios de atención primaria", "Hospitales generales"}
+    primary_types = {"Centros de salud", "Consultorios de atención primaria"}
+    # Require explicit public status, not simply a public-facing establishment.
+    # Unknown/ambiguous ownership is deliberately excluded.
+    def public_health(entry):
+        if entry["category"] != "centro_sanitario":
+            return False
+        owner = entry.get("ownership", "").casefold().strip()
+        # Named, official public health providers, or explicit public control.
+        public_labels = (
+            "servicio navarro de salud", "osasunbidea",
+            "gobierno de navarra", "administración sanitaria pública",
+            "administracion sanitaria publica",
+        )
+        is_public = "públic" in owner or "public" in owner or any(
+            label in owner for label in public_labels
+        )
+        private = "privad" in owner
+        entry["public_ownership_verified"] = is_public and not private
+        return (
+            entry.get("type") in primary_types
+            and entry["public_ownership_verified"]
+        )
     frontline = [entry for entry in combined if
                  entry["category"] in ("policia_foral", "guardia_civil") or
-                 (entry["category"] == "centro_sanitario" and entry.get("type") in primary_types)]
+                 public_health(entry)]
     for entry in frontline:
         entry["emergency_service_confirmed"] = False
     (out / "navarra_frontline.json").write_text(
         json.dumps(frontline, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
     manifest["frontline_record_count"] = len(frontline)
+    manifest["public_health_count"] = sum(1 for entry in frontline if entry["category"] == "centro_sanitario")
+    manifest["public_only_filter"] = True
     (out / "navarra_resources.json").write_text(
         json.dumps(combined, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
