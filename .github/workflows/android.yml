@@ -1,7 +1,7 @@
 name: Android validation (development)
 on:
   push:
-    branches: [develop, main]
+    branches: [develop, main, feat/navarra-vector-map]
   pull_request:
     branches: [develop, main]
   workflow_dispatch:
