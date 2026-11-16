@@ -115,3 +115,12 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Investigado cruce entre **304 fichas sanitarias** del registro y **336 puntos oficiales IDENA**: códigos `Código Centro` e `IDCENSAN` no tienen coincidencias exactas, según `tools/audit_health_identity.py`; **ninguna identidad se ha asignado automáticamente**. Requiere cruce por nombres y localidades con revisión humana antes de asociar teléfonos.
 - Revisado workflow: las importaciones GIS y auditorías oficiales ya no se ejecutarán en cada commit de código de la rama; quedan separadas por cambios de fuente. La compilación de APK sigue excluida por instrucción del usuario.
 - **No apto para uso público/emergencias**. Pendientes calles urbanas, senderos, etiquetas, rutas peatonales verificadas, disponibilidad de datos públicos, privacidad de proveedor de teselas, QA GPS/cámara y prueba en dispositivos.
+
+
+## Callejero IDENA 1:1.000 completo como capa de origen — 2026-11-16
+- Dos importaciones WFS oficiales: run 43892119758 generó correctamente el archivo, pero falló la publicación por una carrera de commits de Git. Run 43892856656 completó la publicación en `assets/offline/navarra_streets_paths.json`.
+- Manifest `assets/offline/navarra_streets_manifest.json`: 7.562 entidades de calle, 12.737 caminos/sendas, 6.276 etiquetas. Geometrías convertidas: 7.749 líneas de calle, 12.683 líneas de camino, 6.274 rótulos; archivo de 1.582.508 bytes; SHA-256 `75f787802f035d631c8a2d23dd1d4273bc18fa85affd6a55c071c143e54ed92d`.
+- Asset incluido en pubspec. Superposición opcional de calles desde zoom 11 y caminos desde zoom 12, conservando carreteras si falla la lectura. Añadido test sobre datos reales; **resultado de CI de esta integración pendiente de comprobación**.
+- Auditoría espacial independiente: existen trazados cerca de Pamplona, Tudela, Estella y Sangüesa, pero las capas `CARTO1_` no muestran cobertura equivalente en Elizondo (Baztan). No describirlas como «callejero completo de Navarra». «Completa» significa que se descargaron TODOS los registros anunciados por estas capas concretas.
+- Se ha localizado una alternativa del Catastro de Navarra, `CATAST_Lin_CalleEje` y `CATAST_Txt_Calle`, para cubrir núcleos no cartografiados a 1:1.000; se está comprobando su estructura mediante WFS. Fuente https://datos.gob.es/es/catalogo/a15002917-callejero-catastral-ejes-de-las-calles1 .
+- Sigue pendiente validar en Android real la representación y fluidez de todas las capas y nombres. **No se ha generado APK**.
