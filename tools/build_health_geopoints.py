@@ -52,7 +52,9 @@ def read_points(data: bytes, kind: str, source: str):
             if not item.shape.points:
                 continue
             p = item.record.as_dict()
-            name = label_from_properties(p)
+            name = normalized(p.get('CENSAN')) or normalized(p.get('NOMBRE')) or normalized(p.get('DENOMINACION'))
+            if not name:
+                name = label_from_properties(p)
             if item.shape.shapeType not in (1, 11, 21):  # only actual point geometries
                 raise ValueError(f"{kind}: expected point, got type {item.shape.shapeType}")
             x, y = item.shape.points[0]
