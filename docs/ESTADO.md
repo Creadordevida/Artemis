@@ -70,3 +70,10 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Pantalla inicial «No sé qué hacer» enlazada al nuevo recorrido.
 - Creado `test/help_orientation_test.dart` para comprobar contenido, regreso, contacto y botón de emergencias.
 - **Pendiente:** confirmar CI, revisar contenido con profesionales competentes, comprobar accesibilidad y funcionamiento en Android físico; no ofrecer aún como servicio de emergencias al público.
+
+## Verificación de ayuda guiada y mapa — 16/11/2026
+- **Confirmado CI verde:** GitHub Actions run 43875274207 (analizador, tests y APK debug) tras integrar el recorrido de seis situaciones de ayuda offline. No validado aún en móvil físico.
+- Botón 112 en todas las pantallas de orientación, con enlaces telefónicos a ANAR 116111 y Enfermería 948290290 cuando corresponde.
+- Cartografía: localizada fuente MBTiles Shortbread de Navarra (~76,8 MB) y creado un validador de capas y metadatos. La primera descarga desde GitHub Actions falló por conexión al servidor Geofabrik principal (curl error 7). Se ha configurado el espejo público `download-ext2.geofabrik.de`; **la disponibilidad y decodificación no están confirmadas aún**.
+- **No hay mapa offline integrado**: los recursos siguen disponibles en un listado local con distancias solo para dependencias policiales con geometría; no se asignan coordenadas a centros sanitarios a partir de direcciones.
+- Próximas puertas: recuperar/validar MBTiles, construir estilo Shortbread con fuentes y recursos locales, incluir en APK, probar mapa realmente en modo avión, medir tamaño instalado y QA de rutas.
