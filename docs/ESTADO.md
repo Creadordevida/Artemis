@@ -145,3 +145,15 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Cambios posteriores al artefacto QA: (a) arranque del mapa por defecto offline, sin solicitar teselas por defecto a un proveedor externo; (b) opción «Ver offline» cuando falla el mapa online. Estos cambios requieren nuevas pruebas de fuente; NO están en el artefacto de QA anterior.
 - Corregida duplicación de workflows: `map-android-qa.yml` es **solo manual (`workflow_dispatch`)** y se eliminó el segundo job APK del validador ordinario. Algunas compilaciones anteriores ya lanzadas siguieron ejecutándose; no se programarán automáticamente más APK.
 - Mantener PR #10 en borrador, separado de `develop` hasta verificar mapa offline en dispositivo, privacidad, fuentes y accesibilidad.
+
+
+## APK móvil de prueba validada por CI — 2026-11-16
+- Usuario ha autorizado obtener una versión instalable para comprobar Artemis en móvil.
+- **Compilación exacta**: GitHub Actions run [43903503335](https://github.com/Creadordevida/Artemis/actions/runs/43903503335), PR #10, rama `feat/mapa-online-recursos`. Job `compile-and-verify`: **success**.
+- Pasó `flutter analyze --no-fatal-infos`, `flutter test`, compilación `flutter build apk --debug`, comprobación de ZIP/APK y presencia física de los assets `navarra_cadastral_streets.json`, `navarra_road_lines.json`, `navarra_streets_paths.json` y `navarra_sns_geo.json` dentro del paquete Android.
+- Artefacto: `ARTEMIS-NAVARRA-MOVIL-PRUEBA`, ID **14245850269**. APK debug de **156.574.247 bytes**, SHA256 `e2897cff561ed7ded1fe281dcacda97c8546c66596009be829a727f21ea8c1c1`.
+- Archivo exportado para el usuario tras verificar la coincidencia del SHA-256 con el compilado de GitHub. No se trata de APK firmado de distribución.
+- Privacidad de esta versión: no solicita GPS al entrar; botón «Obtener mi ubicación» voluntario. Pantalla de mapa inicia en modo offline; pasar a online es una decisión explícita y envía consultas de teselas al proveedor.
+- **No se afirma validación física**: pendiente instalar en Android, observar trazados y marcadores y registrar captura/vídeo real. No se deben invocar 112 ni otros números de emergencia para pruebas de marcado. Probar que el marcador abre el teléfono y cancelar sin llamar.
+- Secuencia de QA propuesta: abrir en modo avión, mapa sin Internet, zoom y desplazamiento en Pamplona/Tudela/Elizondo, iconos públicos, listado offline; volver a red, habilitar mapa online y verificar calles, permisos GPS a petición y linterna. Informar de cualquier pantalla en blanco, bloqueo, sobrecalentamiento, retraso y captura real.
+- APK para prueba técnica por adulto responsable, **no apta todavía para uso real por menores ni emergencias**. Quedan rutas peatonales, cobertura de centros y verificación de horarios.
