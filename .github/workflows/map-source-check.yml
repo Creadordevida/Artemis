@@ -1,0 +1,32 @@
+name: Validate map source and one-time technical QA
+on:
+  push:
+    branches: [feat/mapa-online-recursos]
+  pull_request:
+    branches: [feat/datos-oficiales-navarra]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android project metadata without building APK
+        run: |
+          flutter create --platforms=android --project-name=artemis --org=org.artemis.help .
+          rm -f test/widget_test.dart
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+      - name: Confirm no APK generation
+        run: test ! -e build/app/outputs/flutter-apk/app-debug.apk
+
+

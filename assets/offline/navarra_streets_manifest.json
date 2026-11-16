@@ -1,0 +1,36 @@
+{
+  "source": "https://idena.navarra.es/ogc/wfs",
+  "provider": "Gobierno de Navarra / SITNA / IDENA",
+  "license": "CC BY 4.0",
+  "extraction_utc": "2026-11-16T15:06:53.805818+00:00",
+  "sample_simplification_meters": 6,
+  "is_complete": true,
+  "layer_counts": {
+    "street": {
+      "wfs_type": "CARTO1_Lin_30Calle",
+      "features_downloaded": 7562,
+      "features_reported": 7562,
+      "source_bytes": 5862549
+    },
+    "path": {
+      "wfs_type": "CARTO1_Lin_33Camino",
+      "features_downloaded": 12737,
+      "features_reported": 12737,
+      "source_bytes": 15040650
+    },
+    "street_name": {
+      "wfs_type": "CARTO1_Txt_30Calle",
+      "features_downloaded": 6276,
+      "features_reported": 6276,
+      "source_bytes": 2565364
+    }
+  },
+  "output_bytes": 1582508,
+  "line_counts": {
+    "streets": 7749,
+    "paths": 12683,
+    "labels": 6274
+  },
+  "sha256_output": "75f787802f035d631c8a2d23dd1d4273bc18fa85affd6a55c071c143e54ed92d",
+  "limitations": "Official streets and paths only; no walkable routes or safety guarantees; not necessarily complete for all towns"
+}

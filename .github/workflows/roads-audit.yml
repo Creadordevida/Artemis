@@ -1,0 +1,26 @@
+name: Audit Navarra public road vectors (no APK)
+on:
+  push:
+    branches: [feat/mapa-online-recursos]
+    paths:
+      - 'tools/audit_offline_roads.py'
+      - '.github/workflows/roads-audit.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pyshp==2.3.1 pyproj==3.7.2
+      - run: python tools/audit_offline_roads.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: roads-audit-offline-basemap
+          path: build/official_roads_audit.json
+          if-no-files-found: error
+          retention-days: 14

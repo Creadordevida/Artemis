@@ -1,0 +1,23 @@
+{
+  "data_class": "official_sns_location_points",
+  "sources": [
+    {
+      "type": "primary",
+      "url": "https://idena.navarra.es/descargas/DOTACI_Sym_SNSPrimaria.zip",
+      "sha256": "6eff117e6df49c4486f385eb938fed5057f225f766b39cef446d8a95df76ae54",
+      "count": 299
+    },
+    {
+      "type": "mental_health",
+      "url": "https://idena.navarra.es/descargas/DOTACI_Sym_SNSMental.zip",
+      "sha256": "1f063baf9c7f63fd05ff79b83826a6e35f8e403354cae992895fa4c70df18437",
+      "count": 18
+    },
+    {
+      "type": "sexual_health",
+      "url": "https://idena.navarra.es/descargas/DOTACI_Sym_SNSMujer.zip",
+      "sha256": "a843cbe4737e461897523bbf8232df3979c5b00f1994896f5a9702a06e8650fd",
+      "count": 19
+    }
+  ]
+}

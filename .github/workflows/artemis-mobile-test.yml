@@ -1,0 +1,54 @@
+name: Artemis mobile map test APK - verified build
+on:
+  pull_request:
+    branches: [feat/datos-oficiales-navarra]
+    paths:
+      - 'qa/mobile-test-request.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Regenerate Android scaffold
+        run: |
+          flutter create --platforms=android --project-name=artemis --org=org.artemis.help .
+          rm -f test/widget_test.dart
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Static analysis
+        run: flutter analyze --no-fatal-infos
+      - name: Unit and widget tests
+        run: flutter test
+      - name: Compile QA debug APK
+        run: flutter build apk --debug
+      - name: Verify exact bundled offline content and APK integrity
+        run: |
+          set -eu
+          APK=build/app/outputs/flutter-apk/app-debug.apk
+          test -s "$APK"
+          unzip -t "$APK" | tail -n 1
+          unzip -Z1 "$APK" | grep -q 'flutter_assets/assets/offline/navarra_cadastral_streets.json'
+          unzip -Z1 "$APK" | grep -q 'flutter_assets/assets/offline/navarra_road_lines.json'
+          unzip -Z1 "$APK" | grep -q 'flutter_assets/assets/offline/navarra_sns_geo.json'
+          unzip -Z1 "$APK" | grep -q 'flutter_assets/assets/offline/navarra_streets_paths.json'
+          echo "ARTEMIS_MOBILE_QA_SHA256:"
+          sha256sum "$APK"
+          echo "ARTEMIS_MOBILE_QA_BYTES:"
+          wc -c < "$APK"
+      - name: Publish mobile-installable QA APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ARTEMIS-NAVARRA-MOVIL-PRUEBA
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 21

@@ -12,6 +12,9 @@ dependencies:
   geolocator: ^13.0.2
   url_launcher: ^6.3.1
   torch_light: ^2.0.0
+  flutter_map: ^8.3.2
+  flutter_map_marker_cluster: ^8.2.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +26,11 @@ flutter:
   assets:
     - assets/offline/navarra_frontline.json
     - assets/offline/manifest.json
+    - assets/offline/navarra_sns_geo.json
+    - assets/offline/geo_manifest.json
+    - assets/offline/navarra_road_lines.json
+    - assets/offline/navarra_road_manifest.json
+    - assets/offline/navarra_streets_paths.json
+    - assets/offline/navarra_streets_manifest.json
+    - assets/offline/navarra_cadastral_streets.json
+    - assets/offline/navarra_cadastral_manifest.json

@@ -1,0 +1,27 @@
+{
+  "source": "Gobierno de Navarra / Catastro / IDENA",
+  "license": "CC BY 4.0",
+  "retrieved_utc": "2026-11-16T15:28:05.458295+00:00",
+  "coverage": "cadastral street axes, not walking routes",
+  "crs": "EPSG:25830 transformed to WGS84",
+  "simplification_meters": 6,
+  "sources": [
+    {
+      "category": "cadastral_streets",
+      "url": "https://filescartografia.navarra.es/2_CARTOGRAFIA_TEMATICA/2_7_CATASTRO/2_7_1_SHAPEFILE/CATAST_Lin_CalleEje.zip",
+      "bytes": 3499646,
+      "sha256": "c5c6133aa0d67ee873bb0430794528a8ddd747c248d723d4372a6c873ad6c519",
+      "output_records": 64893
+    },
+    {
+      "category": "cadastral_labels",
+      "url": "https://filescartografia.navarra.es/2_CARTOGRAFIA_TEMATICA/2_7_CATASTRO/2_7_1_SHAPEFILE/CATAST_Txt_Calle.zip",
+      "bytes": 776312,
+      "sha256": "0c39a13583e04366f90cc113e69781149bd06cb62570729d5386d86d6ba37445",
+      "output_records": 21472
+    }
+  ],
+  "output_bytes": 4237415,
+  "sha256_output": "449980e6b4f764b463d6e617b062591536e67458ab1425fb927419175687e766",
+  "limitations": "not navigation; entrances, walkability, street accessibility unknown"
+}

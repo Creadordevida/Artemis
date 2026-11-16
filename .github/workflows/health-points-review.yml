@@ -1,0 +1,44 @@
+name: Review official public health map points (no APK)
+on:
+  push:
+    branches: [feat/mapa-online-recursos]
+    paths:
+      - 'tools/build_health_geopoints.py'
+      - '.github/workflows/health-points-review.yml'
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install GIS parsers
+        run: python -m pip install pyshp==2.3.1 pyproj==3.7.2
+      - name: Build official IDENA SNS geodata
+        run: python tools/build_health_geopoints.py
+      - name: Save review package only
+        uses: actions/upload-artifact@v4
+        with:
+          name: navarra-public-health-geo-review
+          path: build/official-health-points/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Store validated public coordinates in feature branch only
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/mapa-online-recursos'
+        run: |
+          mkdir -p assets/offline
+          cp build/official-health-points/navarra_sns_geo.json assets/offline/navarra_sns_geo.json
+          cp build/official-health-points/geo_manifest.json assets/offline/geo_manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/offline/navarra_sns_geo.json assets/offline/geo_manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: include validated public SNS geolocations [skip ci]"
+            git pull --rebase origin feat/mapa-online-recursos
+            git push origin HEAD:feat/mapa-online-recursos
+          fi
