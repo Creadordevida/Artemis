@@ -94,3 +94,14 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - `test/flashlight_control_test.dart` supera casos con hardware simulado (encendido/apagado, cámara sin flash, error nativo); faltan pruebas reales en Android.
 - Cartografía offline sigue pendiente y **no forma parte de esta APK**.
 - **Advertencia imprescindible**: prototipo de desarrollo para pruebas técnicas, no usar como herramienta principal ante emergencias reales. Mantener 112 como referencia directa.
+
+## Mapa online y fuentes offline alternativas — 16/11/2026
+- PR borrador #10 desde `feat/mapa-online-recursos` sobre `feat/datos-oficiales-navarra`; NO está fusionado en `develop` ni en `main`.
+- Código `lib/navarra_map.dart`: primera pantalla de mapa online de Navarra con teselas OSM, cache nativa de `flutter_map`, atribución visible y marcador GPS actual (sin utilizar posición anterior). Cuando falla la red, el directorio local y los puntos están disponibles. No equivale a que todo el fondo esté garantizado offline.
+- **399 puntos públicos geográficos**: 63 dependencias policiales y 336 puntos sanitarios de fuentes IDENA. GIS sanitario: 299 primaria + 18 salud mental + 19 salud sexual/reproductiva. Son una capa geográfica independiente de las 304 fichas sanitarias del CSV original; falta conciliar identidades. No se presume horario, urgencias ni acceso físico verificado.
+- Marcadores agrupados por proximidad (clustering) para evitar solapamiento a escala regional. Filtros por salud, Policía Foral y Guardia Civil.
+- Pantalla de inicio enlazada al nuevo mapa. Internet declarado en AndroidManifest; proveedor de teselas puede conocer zona de visualización, requiere transparencia de privacidad para menores.
+- **CI de fuente sin APK**: run 43886962854, análisis Flutter y tests **correctos**. El job verifica explícitamente que no se generó APK. Sin capturas de un móvil Android ni validación de teselas en conexión real.
+- **Ruta alternativa offline verificada**: capa IDENA `INFRAE_Lin_CtraEje.zip`, CC BY 4.0, disponible desde GitHub Actions. Auditoría: 3.443.729 bytes ZIP, 17.479 trazados de carretera y 247.976 vértices. Es útil para un primer fondo vectorial offline, pero NO contiene la red completa peatonal ni los rótulos necesarios.
+- Detalles técnicos, requisitos OSM y dos vías MBTiles documentados en `docs/MAPA_ONLINE_OFFLINE_PLAN.md`.
+- **Pendiente**: probar teselas en dispositivo real, consolidar datos y ubicaciones, seleccionar proveedor de mapas online apto para producción, obtener o construir el paquete MBTiles offline completo, rutas peatonales. Sin generar APK hasta orden del usuario.
