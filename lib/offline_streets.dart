@@ -9,16 +9,23 @@ import 'package:flutter/material.dart';
 /// Official IDENA street/path vector dataset, transformed at build time.
 /// Unlike a complete pedestrian graph, these lines do NOT establish
 /// safe walking access or crossing availability.
+class OfflineStreetLabel {
+  const OfflineStreetLabel({required this.text, required this.point});
+  final String text;
+  final LatLng point;
+}
+
 class OfflineStreetPaths {
   const OfflineStreetPaths({
     required this.streets,
     required this.paths,
-    required this.labelCount,
+    required this.labels,
   });
 
   final List<Polyline<Object>> streets;
   final List<Polyline<Object>> paths;
-  final int labelCount;
+  final List<OfflineStreetLabel> labels;
+  int get labelCount => labels.length;
 }
 
 Future<OfflineStreetPaths> loadOfficialStreetPaths() async {
@@ -37,14 +44,26 @@ OfflineStreetPaths parseOfficialStreetPaths(String encoded) {
   final obj = jsonDecode(encoded) as Map<String, dynamic>;
   final roads = _readLines(obj['streets'], const Color(0xFF637D93), 2.1);
   final paths = _readLines(obj['paths'], const Color(0xFF9B8A6D), 1.35);
-  final labels = obj['labels'] as List<dynamic>;
-  if (labels.length > 10000) {
+  final rawLabels = obj['labels'] as List<dynamic>;
+  if (rawLabels.length > 10000) {
     throw const FormatException('Abnormal street-label volume');
   }
+  final labels = rawLabels.map((raw) {
+    final item = raw as Map<String, dynamic>;
+    final text = (item['text'] as String).trim();
+    final lat = (item['lat'] as num).toDouble();
+    final lon = (item['lon'] as num).toDouble();
+    if (text.isEmpty || text.length > 100 ||
+        !lat.isFinite || !lon.isFinite ||
+        lat < 41.6 || lat > 43.5 || lon < -2.8 || lon > -0.55) {
+      throw const FormatException('Invalid street label');
+    }
+    return OfflineStreetLabel(text: text, point: LatLng(lat, lon));
+  }).toList(growable: false);
   return OfflineStreetPaths(
     streets: roads,
     paths: paths,
-    labelCount: labels.length,
+    labels: labels,
   );
 }
 
