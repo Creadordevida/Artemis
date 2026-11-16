@@ -31,3 +31,16 @@ No se presupone derecho a reutilizar directamente las teselas ni sus formatos ha
 
 ## Situación actual
 **Solo investigación/arquitectura. No integrado ni probado todavía.**
+
+## Candidato preferente de cartografía offline (16/11/2026)
+Geofabrik distribuye directamente un paquete vectorial de Navarra Shortbread 1.0 en **MBTiles** (~76,8 MB), evitando generar teselas desde el PBF. URL de origen: https://download.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles . El archivo es cartografía vectorial de OpenStreetMap bajo ODbL; la atribución «© OpenStreetMap contributors / Geofabrik» se debe mostrar dentro del mapa.
+
+La primera validación está implementada en `tools/inspect_navarra_tiles.py` y `.github/workflows/map-probe.yml`; comprueba SQLite, formato, capas y metadatos antes de permitir su integración. Todavía NO hay un mapa dibujado en la APK.
+
+Candidatos de renderizado:
+- `flutter_map` (v8.2) + `flutter_map_vector_tiles` (v2.6) + `flutter_map_vector_tiles_mbtiles` (v1.0): abre MBTiles locales vía SQLite y permite aplicar un estilo sin peticiones externas.
+- Alternativa `maplibre` con MBTiles y estilo local. Requiere ensayo de compatibilidad, consumo y atribución.
+La capa Shortbread requiere un estilo que conozca sus nombres reales de capas; no reutilizar un estilo OpenMapTiles con IDs no coincidentes. Los tipos de letra, iconos/sprites y rótulos deberán estar incluidos localmente para evitar llamadas a servidores.
+Pruebas obligatorias: dispositivo Android en modo avión, representación de caminos y carreteras en Pamplona, Ribera y áreas rurales, desempeño y tamaño final.
+
+Fuentes: https://download.geofabrik.de/europe/spain/navarra.html ; https://pub.dev/packages/flutter_map_vector_tiles_mbtiles ; https://maplibre.org/flutter-maplibre/
