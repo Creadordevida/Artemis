@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir -p build
           curl --fail --location --retry 3 --connect-timeout 20 --max-time 300 \
-            https://download.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles \
+            https://download-ext2.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles \
             --output build/navarra.mbtiles
       - name: Inspect vector tile archive
         run: python tools/inspect_navarra_tiles.py build/navarra.mbtiles
