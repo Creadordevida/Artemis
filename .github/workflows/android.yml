@@ -24,6 +24,15 @@ jobs:
           # flutter create generates a counter demo test referring to MyApp;
           # our own test/smoke_test.dart is the actual app test.
           rm -f test/widget_test.dart
+      - name: Fetch pinned-schema Navarra offline vector package
+        run: |
+          mkdir -p assets/maps
+          curl --fail --location --retry 3 --connect-timeout 25 \
+            "https://download.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles" \
+            -o assets/maps/navarra.mbtiles
+          test "$(stat -c%s assets/maps/navarra.mbtiles)" -gt 1000000
+          sha256sum assets/maps/navarra.mbtiles | tee map-archive.sha256
+          ls -lh assets/maps/navarra.mbtiles
       - name: Resolve dependencies
         run: flutter pub get
       - name: Static analysis
