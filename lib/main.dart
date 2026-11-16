@@ -229,38 +229,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
-  void _showHelp(String label, String details) {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 12),
-            Text(details),
-            const SizedBox(height: 16),
-            const Text('Todavía estamos verificando el directorio de Navarra. No mostramos centros ni horarios sin comprobar.'),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: _dial112,
-              icon: const Icon(Icons.call),
-              label: const Text('Si hay peligro inmediato, llamar al 112'),
-              style: FilledButton.styleFrom(backgroundColor: emergencyRed, minimumSize: const Size.fromHeight(52)),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Volver a la ayuda'),
-            ),
-          ]),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final coordinates = position == null ? null :
