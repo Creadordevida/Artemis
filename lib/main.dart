@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'help_contacts.dart';
 
 void main() => runApp(const ArtemisApp());
 
@@ -106,22 +107,82 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) setState(() { status = value; isCurrent = false; });
   }
 
-  Future<void> _dial112() async {
-    final uri = Uri(scheme: 'tel', path: '112');
+  Future<void> _dial112() => _dial('112');
+
+  Future<void> _dial(String number) async {
+    final uri = Uri(scheme: 'tel', path: number);
     try {
       final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!launched && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('No pudimos abrir la llamada. Marca 112 desde el teléfono si hay cobertura.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('No pudimos abrir la llamada. Puedes marcar $number desde el teléfono si hay red.'),
         ));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Abre el teléfono y marca 112 si existe una red disponible.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Puedes abrir el teléfono y marcar $number si existe una red disponible.'),
         ));
       }
     }
+  }
+
+  void _showContacts() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: FractionallySizedBox(
+          heightFactor: 0.85,
+          child: Column(children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Teléfonos de ayuda', style: TextStyle(
+                  fontSize: 23, fontWeight: FontWeight.bold, color: navy)),
+                SizedBox(height: 8),
+                Text('Estos números están guardados en el móvil. Para llamar necesitas una red telefónica disponible.'),
+              ]),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: helpContacts.length,
+                itemBuilder: (context, index) {
+                  final contact = helpContacts[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(contact.name, style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 5),
+                          Text(contact.description),
+                          const SizedBox(height: 5),
+                          Text('Verificado: ${contact.verifiedOn}',
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF53616B))),
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: OutlinedButton.icon(
+                              onPressed: () => _dial(contact.phone),
+                              icon: const Icon(Icons.phone),
+                              label: Text('Llamar al ${contact.phone}'),
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 
   Future<void> _choosePlace() async {
@@ -251,6 +312,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _HelpAction(icon: Icons.local_pharmacy_outlined, label: 'Farmacia',
             onTap: () => _showHelp('Necesito una farmacia',
               'El directorio está en preparación. Si necesitas un medicamento con urgencia, busca atención sanitaria o pide ayuda a una persona de confianza.')),
+          _HelpAction(icon: Icons.phone_in_talk_outlined, label: 'Teléfonos',
+            onTap: _showContacts),
           _HelpAction(icon: Icons.help_outline, label: 'No sé qué hacer',
             onTap: () => _showHelp('Vamos a encontrar el siguiente paso',
               'No hace falta que sepas exactamente qué ocurre. Busca un lugar seguro y habla con alguien de confianza si puedes. Si hay peligro inmediato, llama al 112.')),
