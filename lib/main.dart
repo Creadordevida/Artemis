@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'help_contacts.dart';
 import 'offline_resources.dart';
 import 'help_orientation.dart';
+import 'flashlight_control.dart';
 
 void main() => runApp(const ArtemisApp());
 
@@ -236,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('ARTEMIS', style: TextStyle(
         fontWeight: FontWeight.w800, letterSpacing: 1.8)), actions: [
+          const FlashlightAction(),
           IconButton(
             tooltip: 'Volver a buscar ubicación',
             onPressed: locating ? null : _locate,
