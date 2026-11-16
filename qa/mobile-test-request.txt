@@ -1,0 +1,6 @@
+ARTEMIS MOBILE QA — 2026-11-16
+Objetivo: prueba controlada en Android del mapa offline Navarra y selector online.
+Incluye: datos cartográficos catastrales, calles y caminos IDENA, 399 marcadores públicos, 112, ANAR y Enfermería de Navarra.
+Condiciones: Flutter analyze, flutter test, APK Android e inspección de assets offline empaquetados.
+Uso: QA en teléfono del propietario; no apta para emergencias ni publicación general.
+Privacidad: GPS solo a petición; red de teselas online bajo elección explícita.
