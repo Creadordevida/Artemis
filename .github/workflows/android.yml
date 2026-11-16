@@ -80,3 +80,29 @@ jobs:
             git commit -m "data: include audited public-only Navarra facilities [skip ci]"
             git push origin HEAD:feat/datos-oficiales-navarra
           fi
+
+  map-source-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install tile metadata parser
+        run: python -m pip install --disable-pip-version-check mapbox-vector-tile==2.2.0
+      - name: Download Navarra Shortbread vector map
+        run: |
+          mkdir -p build
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 300 https://download.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles --output build/navarra.mbtiles
+      - name: Verify archive and layer schema
+        run: python tools/inspect_navarra_tiles.py build/navarra.mbtiles
+      - name: Store verification report only
+        uses: actions/upload-artifact@v4
+        with:
+          name: navarra-offline-map-probe
+          path: build/navarra_mbtiles_probe.json
+          if-no-files-found: error
+          retention-days: 14
