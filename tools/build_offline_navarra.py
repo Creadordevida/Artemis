@@ -78,7 +78,14 @@ def spatial_points(data: bytes, category: str, source: str):
             raise ValueError("Source lacks CRS .prj; cannot georeference safely")
         crs = CRS.from_wkt(z.read(prj).decode("utf-8-sig", errors="replace"))
         convert = Transformer.from_crs(crs, CRS.from_epsg(4326), always_xy=True)
-        reader = shapefile.Reader(shp=part(".shp"), shx=part(".shx"), dbf=part(".dbf"))
+        # Navarra Shapefile DBFs can use Windows-1252 rather than UTF-8.
+        # Prefer declared .cpg when present; otherwise fall back to cp1252.
+        cpg = next((n for n in names if n.lower() == (stem + ".cpg").lower()), None)
+        encoding = z.read(cpg).decode("ascii", errors="ignore").strip() if cpg else "cp1252"
+        if encoding.upper() in ("ANSI 1252", "WINDOWS-1252"):
+            encoding = "cp1252"
+        reader = shapefile.Reader(shp=part(".shp"), shx=part(".shx"), dbf=part(".dbf"),
+                                  encoding=encoding)
         result = []
         for index, item in enumerate(reader.iterShapeRecords()):
             props = item.record.as_dict()
