@@ -49,7 +49,7 @@ def normalized(value):
 
 def label_from_properties(properties: dict) -> str:
     fields = ("NOMBRE", "DENOMINACI", "DENOMINACION", "NOM", "NAME",
-              "DESCRIPCIO", "DESCRIPCION", "ROTULO", "ETIQUETA")
+              "DESCRIPCIO", "DESCRIPCION", "ROTULO", "ETIQUETA", "OFICINA")
     lookup = {str(k).upper(): normalized(v) for k, v in properties.items()}
     for key in fields:
         if lookup.get(key):
@@ -110,7 +110,9 @@ def spatial_points(data: bytes, category: str, source: str):
                 "location_quality": "approximate_facility_geometry",
                 "validated_entrance": False,
                 "hours": None,
-                "phone": None,
+                "phone": normalized(props.get("TELEFONO")) or None,
+                "address": normalized(props.get("DIRECCION")),
+                "municipality": normalized(props.get("POBLACION")),
                 "source": source,
             })
         if not result:
