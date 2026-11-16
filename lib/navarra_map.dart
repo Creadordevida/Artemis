@@ -270,8 +270,8 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                               }
                               return FutureBuilder<OfflineStreetPaths>(
                                 future: _streetPaths,
-                                builder: (context, data) => PolylineLayer(
-                                  polylines: data.data?.streets ?? const [],
+                                builder: (context, data) => PolylineLayer<Object>(
+                                  polylines: data.data?.streets ?? const <Polyline<Object>>[],
                                 ),
                               );
                             }),
@@ -282,8 +282,8 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                               }
                               return FutureBuilder<OfflineStreetPaths>(
                                 future: _streetPaths,
-                                builder: (context, data) => PolylineLayer(
-                                  polylines: data.data?.paths ?? const [],
+                                builder: (context, data) => PolylineLayer<Object>(
+                                  polylines: data.data?.paths ?? const <Polyline<Object>>[],
                                 ),
                               );
                             }),
