@@ -64,6 +64,7 @@ class _NavarraOfflineMapState extends State<NavarraOfflineMap> {
       }
       final hasPosition = widget.latitude != null && widget.longitude != null;
       return MapLibreMap(
+        children: const [SourceAttribution()],
         options: MapOptions(
           style: MapStyle.json(navarraMapStyle(snapshot.data!)),
           initCamera: CameraUpdate.position(
