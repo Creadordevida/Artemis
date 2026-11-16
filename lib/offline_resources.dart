@@ -4,7 +4,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'main.dart' show emergencyRed, navy;
+const navy = Color(0xFF14283B);
+const emergencyRed = Color(0xFFAA3945);
 
 class OfflinePlace {
   OfflinePlace.fromJson(Map<String, dynamic> json)
