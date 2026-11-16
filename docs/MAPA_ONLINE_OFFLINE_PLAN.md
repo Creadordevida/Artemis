@@ -64,3 +64,13 @@ Referencias:
 - La cobertura urbana posterior puede investigarse en el catálogo SITNA 1:1.000: capas `CARTO1_Lin_30Calle` (eje de calle) y `CARTO1_Lin_33Camino` (camino/senda), **aún no obtenidas ni verificadas como paquetes descargables**. No basta con aparecer en WMS/WFS para asumir descarga completa y legal.
 - Fuente del catálogo de capas oficial (octubre 2026): https://idena.navarra.es/descargas/wms_wfs_idena.pdf . Datos vectoriales bajo CC BY 4.0: https://geoportal.navarra.es/es/idena/descargar .
 - Comprobación de identidad: códigos de centros sanitarios de la fuente CSV y de las fuentes GIS no coinciden exactamente. Se mantienen como bases relacionadas pero independientes hasta auditoría y conciliación segura.
+
+
+## Callejero complementario necesario para TODOS los núcleos de Navarra
+La extracción de `CARTO1_` (cartografía 1:1.000) ya ha funcionado, pero las capas tienen cobertura espacial parcial. Un muestreo de las geometrías confirmó elementos en Pamplona, Tudela, Estella y Sangüesa, pero ninguno en torno a Elizondo (Baztan). La fuente oficial advierte de que los municipios cartografiados a 1:1.000 son una lista delimitada, no toda Navarra.
+
+**Alternativa de cobertura más general:** el callejero catastral `CATAST_Lin_CalleEje` y las etiquetas `CATAST_Txt_Calle`, distribuidos por el Gobierno de Navarra con actualizaciones frecuentes y licencia CC BY 4.0. Se ha añadido su identificación al investigador `tools/probe_idena_wfs.py`. Se deberá comprobar el total, la geometría, la existencia de ejes de calle en Baztan y otras comarcas, y el volumen antes de descargar.
+
+Fuentes: https://datos.gob.es/es/catalogo/a15002917-callejero-catastral-ejes-de-las-calles1 y https://idena.navarra.es/descargas/wms_wfs_idena.pdf .
+
+Las líneas de calle y caminos (sea `CARTO1` o `CATAST`) no sustituyen un **grafo de navegación peatonal comprobado**: no inferir rutas por proximidad geométrica.
