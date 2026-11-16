@@ -195,9 +195,21 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                         style: const TextStyle(fontSize: 12),
                       ),
                       if (tileError && !offlineMode)
-                        const Text(
-                          'No se pudieron cargar algunas calles. Los puntos y el directorio siguen disponibles sin Internet.',
-                          style: TextStyle(color: Color(0xFF9E3540), fontSize: 12),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'No se han podido cargar algunas calles online. El mapa local sigue disponible.',
+                                style: TextStyle(
+                                  color: Color(0xFF9E3540), fontSize: 12),
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () => setState(() => offlineMode = true),
+                              icon: const Icon(Icons.wifi_off),
+                              label: const Text('Ver offline'),
+                            ),
+                          ],
                         ),
                       const SizedBox(height: 6),
                       Wrap(
