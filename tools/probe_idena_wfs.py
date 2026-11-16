@@ -16,6 +16,8 @@ LAYERS = [
     "CARTO1_Lin_30Calle",
     "CARTO1_Lin_33Camino",
     "CARTO1_Txt_30Calle",
+    "CATAST_Lin_CalleEje",
+    "CATAST_Txt_Calle",
 ]
 MAX_RESPONSE = 2 * 1024 * 1024
 OUT = Path("build/wfs-probe")
