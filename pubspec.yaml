@@ -30,3 +30,5 @@ flutter:
     - assets/offline/geo_manifest.json
     - assets/offline/navarra_road_lines.json
     - assets/offline/navarra_road_manifest.json
+    - assets/offline/navarra_streets_paths.json
+    - assets/offline/navarra_streets_manifest.json
