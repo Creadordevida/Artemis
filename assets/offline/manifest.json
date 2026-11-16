@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "region": "Navarra",
+  "created_utc": "2026-11-16T13:03:01.317386+00:00",
+  "license_notice": "CC BY 4.0; verificar atribución concreta del conjunto antes de distribuir",
+  "sources": [
+    {
+      "category": "policia_foral",
+      "url": "https://idena.navarra.es/descargas/DOTACI_Sym_PFOficinas.zip",
+      "sha256": "30b57c5122692daf24041486fd935a9402c7fd448104f996a46a5c8e1ffaf81e",
+      "record_count": 9
+    },
+    {
+      "category": "guardia_civil",
+      "url": "https://idena.navarra.es/descargas/DOTACI_Sym_GCivil.zip",
+      "sha256": "4752e8ed482f0ed6a92c5f8f0bfcda7f9bf4f6190aafa54ad49b6c8ab7023971",
+      "record_count": 54
+    },
+    {
+      "category": "centros_sanitarios",
+      "url": "https://datosabiertos.navarra.es/dataset/c87d1546-0396-4e17-8b99-762d77d28503/resource/f1fc5b52-be72-4088-8cb1-772076e2071c/download/centrossanitarios.csv",
+      "sha256": "f0763b4df89e03b353216843bbe051658bfad8711447f81233bf4e1bb6f7055a",
+      "record_count": 2246
+    }
+  ],
+  "frontline_record_count": 343
+}
