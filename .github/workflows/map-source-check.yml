@@ -29,3 +29,37 @@ jobs:
       - name: Confirm no APK generation
         run: test ! -e build/app/outputs/flutter-apk/app-debug.apk
 
+
+  android-map-qa-once:
+    # The user authorized a test APK only to check physical map rendering.
+    # Never run this job on ordinary UI commits or documentation edits.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[map-qa]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android project scaffold
+        run: |
+          flutter create --platforms=android --project-name=artemis --org=org.artemis.help .
+          rm -f test/widget_test.dart
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+      - name: Compile debug APK exclusively for offline map QA
+        run: flutter build apk --debug
+      - name: Print SHA256 and test package size
+        run: |
+          sha256sum build/app/outputs/flutter-apk/app-debug.apk
+          du -h build/app/outputs/flutter-apk/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artemis-navarra-offline-map-technical-qa
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
