@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maplibre/maplibre.dart';
 import 'package:path_provider/path_provider.dart';
+import '../data/navarra_map_style.dart';
 
 /// Loads an embedded regional vector map. Never falls back to web tiles.
 /// A 112 action is always available on the parent screen during preparation.
@@ -39,26 +39,6 @@ class _NavarraOfflineMapState extends State<NavarraOfflineMap> {
     return path;
   }
 
-  String _style(String path) => jsonEncode({
-    'version': 8,
-    'name': 'Artemis Navarra local',
-    'sources': {
-      'navarra': {
-        'type': 'vector',
-        'url': 'mbtiles://$path',
-        'attribution': '© OpenStreetMap contributors (ODbL) / Geofabrik',
-      },
-    },
-    'layers': [
-      {'id':'base','type':'background','paint':{'background-color':'#e8eee9'}},
-      {'id':'land','type':'fill','source':'navarra','source-layer':'land','paint':{'fill-color':'#dce6d6'}},
-      {'id':'water','type':'fill','source':'navarra','source-layer':'water_polygons','paint':{'fill-color':'#a7c8dc'}},
-      {'id':'rivers','type':'line','source':'navarra','source-layer':'water_lines','paint':{'line-color':'#83b6cf','line-width':1.5}},
-      {'id':'buildings','type':'fill','source':'navarra','source-layer':'buildings','minzoom':13,'paint':{'fill-color':'#d2d8d6'}},
-      {'id':'streets-base','type':'line','source':'navarra','source-layer':'streets','paint':{'line-color':'#ced4d4','line-width':3}},
-      {'id':'streets-top','type':'line','source':'navarra','source-layer':'streets','paint':{'line-color':'#ffffff','line-width':1.7}},
-    ],
-  });
 
   @override
   Widget build(BuildContext context) => FutureBuilder<String>(
@@ -85,7 +65,7 @@ class _NavarraOfflineMapState extends State<NavarraOfflineMap> {
       final hasPosition = widget.latitude != null && widget.longitude != null;
       return MapLibreMap(
         options: MapOptions(
-          style: MapStyle.json(_style(snapshot.data!)),
+          style: MapStyle.json(navarraMapStyle(snapshot.data!)),
           initCamera: CameraUpdate.position(
             center: Geographic(
               lon: hasPosition ? widget.longitude! : -1.64,
