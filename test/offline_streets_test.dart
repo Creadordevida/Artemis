@@ -41,4 +41,21 @@ void main() {
     expect(data.labelCount, 6274);
   });
 
+  test('Callejero catastral abarca Elizondo/Baztan y se carga sin red',
+      () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final pack = await loadCadastralStreetPaths();
+    expect(pack.streets.length, 64893);
+    expect(pack.labelCount, 21472);
+    expect(pack.paths, isEmpty);
+
+    // El paquete anterior 1:1.000 no tenía calles en esta ventana.
+    final coversElizondo = pack.streets.any((road) => road.points.any(
+      (point) =>
+          (point.latitude - 43.145).abs() < 0.03 &&
+          (point.longitude + 1.520).abs() < 0.03,
+    ));
+    expect(coversElizondo, isTrue);
+  });
+
 }
