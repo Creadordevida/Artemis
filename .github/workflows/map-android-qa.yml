@@ -1,7 +1,7 @@
 name: Android offline-map QA APK (manual milestone)
 on:
-  push:
-    branches: [feat/mapa-online-recursos]
+  pull_request:
+    branches: [feat/datos-oficiales-navarra]
     paths:
       - '.github/workflows/map-android-qa.yml'
   workflow_dispatch:
