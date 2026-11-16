@@ -1,0 +1,40 @@
+name: Android offline-map QA APK (manual milestone)
+on:
+  push:
+    branches: [feat/mapa-online-recursos]
+    paths:
+      - '.github/workflows/map-android-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  map-performance-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android scaffold
+        run: |
+          flutter create --platforms=android --project-name=artemis --org=org.artemis.help .
+          rm -f test/widget_test.dart
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+      - name: Build map QA APK (not for emergencies)
+        run: flutter build apk --debug
+      - name: Report APK size and checksum
+        run: |
+          sha256sum build/app/outputs/flutter-apk/app-debug.apk
+          du -h build/app/outputs/flutter-apk/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artemis-offline-navarra-map-qa
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
