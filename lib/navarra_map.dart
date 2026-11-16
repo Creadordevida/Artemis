@@ -300,6 +300,53 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                               });
                             },
                           ),
+                          // Street names: only at detailed zoom and only inside
+                          // the visible viewport, with a strict 70-label cap.
+                          if (offlineMode)
+                            Builder(builder: (mapContext) {
+                              final camera = MapCamera.of(mapContext);
+                              if (camera.zoom < 15) {
+                                return const SizedBox.shrink();
+                              }
+                              return FutureBuilder<OfflineStreetPaths>(
+                                future: _streetPaths,
+                                builder: (context, data) {
+                                  final labels = data.data?.labels ?? const <OfflineStreetLabel>[];
+                                  final visible = labels
+                                      .where((label) => camera.visibleBounds.contains(label.point))
+                                      .take(70);
+                                  return MarkerLayer(
+                                    markers: [
+                                      for (final label in visible)
+                                        Marker(
+                                          point: label.point,
+                                          width: 150,
+                                          height: 22,
+                                          child: Center(
+                                            child: DecoratedBox(
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xCCFFFFFF),
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 3),
+                                                child: Text(label.text,
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    color: Color(0xFF273944),
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w600,
+                                                  )),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }),
                           MarkerClusterLayerWidget(
                             options: MarkerClusterLayerOptions(
                               maxClusterRadius: 48,
