@@ -25,3 +25,12 @@ Geoportal Navarra / SITNA / IDENA ofrece capas oficiales con licencia CC BY 4.0:
 
 ## Estado
 **Pipeline especificado, extracción y renderizado todavía NO integrados.** El PR #7 solo prepara el directorio de recursos offline y su validación.
+
+## Prueba experimental de integración — 16/11/2026
+- Rama `feat/navarra-vector-map`, PR #8.
+- Archivo `navarra-shortbread-1.0.mbtiles` de Geofabrik (~75 MB) descargado por GitHub Actions durante la compilación; no se sube al repositorio.
+- Flutter empaqueta el archivo y lo copia a almacenamiento interno en la primera apertura del mapa.
+- MapLibre 0.4 pre muestra capas locales básicas (tierra, agua, calles, edificios). No se requieren peticiones HTTP de teselas.
+- El marcador azul solo se dibuja cuando existe una coordenada recibida del dispositivo; se avisa si es histórica.
+- El 112 permanece accesible durante y después de abrir el mapa.
+- **Pendientes de QA:** compatibilidad Android nativa, legibilidad y nombres de pueblos, rendimiento/copia del paquete, verificaciones en modo avión, y rutas. No confundir compilación con pruebas de campo.
