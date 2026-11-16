@@ -256,15 +256,31 @@ class _HomeScreenState extends State<HomeScreen> {
               'No hace falta que sepas exactamente qué ocurre. Busca un lugar seguro y habla con alguien de confianza si puedes. Si hay peligro inmediato, llama al 112.')),
         ]),
         const SizedBox(height: 20),
-        FilledButton.icon(onPressed: _dial112,
-          style: FilledButton.styleFrom(backgroundColor: emergencyRed,
-            minimumSize: const Size.fromHeight(58)),
-          icon: const Icon(Icons.call),
-          label: const Text('Emergencias 112', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-        const SizedBox(height: 12),
-        const Text('La llamada requiere una red telefónica disponible. Artemis no sustituye a los servicios de emergencias.',
+        const Text('Artemis es un prototipo. Los servicios y el mapa de Navarra están en preparación.',
           style: TextStyle(color: Color(0xFF53616B), fontSize: 12)),
       ])),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            FilledButton.icon(
+              onPressed: _dial112,
+              style: FilledButton.styleFrom(
+                backgroundColor: emergencyRed,
+                minimumSize: const Size.fromHeight(58),
+              ),
+              icon: const Icon(Icons.call),
+              label: const Text('Emergencias 112',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 5),
+            const Text('La llamada necesita una red telefónica disponible.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF53616B), fontSize: 11)),
+          ]),
+        ),
+      ),
     );
   }
 }
