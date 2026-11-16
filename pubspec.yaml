@@ -19,3 +19,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/offline/navarra_frontline.json
+    - assets/offline/manifest.json
