@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "region": "ES-NC",
+  "builtAt": "2026-11-16T12:00:00Z",
+  "resources": [
+    {
+      "id": "es-112",
+      "name": "Emergencias 112",
+      "kind": "emergency",
+      "source": "https://www.navarra.es/es/seguridad-y-emergencias/emergencias-112",
+      "verifiedAt": "2026-11-16",
+      "phone": "112"
+    }
+  ]
+}
