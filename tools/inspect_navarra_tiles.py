@@ -32,7 +32,7 @@ layers_examples = {}
 formats = set()
 for (blob,) in connection.execute("SELECT tile_data FROM tiles ORDER BY zoom_level DESC LIMIT 50"):
     try:
-        if blob[:2] == b"\\x1f\\x8b":
+        if blob[:2] == b"\x1f\x8b":
             raw = gzip.decompress(blob)
         else:
             raw = blob
