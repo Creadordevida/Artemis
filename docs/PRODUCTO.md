@@ -30,3 +30,8 @@ Escudo blanco con localizador y estrella de cuatro puntas en fondo casi negro/az
 
 ## Fuera de alcance al principio
 Diagnóstico médico; predicción de incidentes; avisos policiales no públicos; promesas de recursos abiertos en directo; IA generativa determinando urgencias; navegación segura garantizada en rutas no validadas.
+
+
+## Regla de directorio público (16/11/2026)
+Mostrar únicamente puntos físicos de gestión pública verificada: centros de SNS-O, municipal y otras administraciones públicas, Policía Foral y Guardia Civil. Nunca incluir centros sanitarios privados por el mero hecho de figurar en datos abiertos. Excluir farmacias privadas del directorio físico mientras rija esta regla.
+La enfermera del Consejo Sanitario (948 290 290) tiene acceso destacado en la pantalla principal, como alternativa para dudas sanitarias no urgentes. No sustituye al 112.
