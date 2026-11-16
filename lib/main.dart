@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'help_contacts.dart';
+import 'offline_resources.dart';
 
 void main() => runApp(const ArtemisApp());
 
@@ -216,6 +217,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _openResources(String category) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => OfflineResourcesPage(
+        initialCategory: category,
+        onDial: _dial,
+        latitude: isCurrent ? position?.latitude : null,
+        longitude: isCurrent ? position?.longitude : null,
+      ),
+    ));
+  }
+
   void _showHelp(String label, String details) {
     showModalBottomSheet<void>(
       context: context,
@@ -319,11 +331,9 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 12),
         Wrap(spacing: 10, runSpacing: 10, children: [
           _HelpAction(icon: Icons.medical_services_outlined, label: 'Salud',
-            onTap: () => _showHelp('Necesito atención sanitaria',
-              'Si te encuentras mal, busca un lugar seguro y pide ayuda a una persona de confianza. Ante signos graves o peligro inmediato, llama al 112.')),
+            onTap: () => _openResources('centro_sanitario')),
           _HelpAction(icon: Icons.shield_outlined, label: 'Policía',
-            onTap: () => _showHelp('Necesito ayuda para sentirme seguro',
-              'Si es seguro hacerlo, aléjate del peligro y acude a un lugar atendido o a una persona de confianza. Ante peligro inmediato, llama al 112.')),
+            onTap: () => _openResources('seguridad')),
           _HelpAction(icon: Icons.local_pharmacy_outlined, label: 'Farmacia',
             onTap: () => _showHelp('Necesito una farmacia',
               'El directorio está en preparación. Si necesitas un medicamento con urgencia, busca atención sanitaria o pide ayuda a una persona de confianza.')),
