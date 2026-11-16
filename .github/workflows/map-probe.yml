@@ -1,0 +1,36 @@
+name: Probe Navarra offline map
+on:
+  push:
+    branches: [feat/datos-oficiales-navarra]
+    paths:
+      - 'tools/inspect_navarra_tiles.py'
+      - '.github/workflows/map-probe.yml'
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install vector decoder
+        run: python -m pip install --disable-pip-version-check mapbox-vector-tile==2.2.0
+      - name: Download Navarra Shortbread MBTiles
+        run: |
+          mkdir -p build
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 300 \
+            https://download-ext2.geofabrik.de/europe/spain/navarra-shortbread-1.0.mbtiles \
+            --output build/navarra.mbtiles
+      - name: Inspect vector tile archive
+        run: python tools/inspect_navarra_tiles.py build/navarra.mbtiles
+      - name: Preserve diagnostic metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: navarra-shortbread-metadata
+          path: build/navarra_mbtiles_probe.json
+          retention-days: 14

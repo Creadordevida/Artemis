@@ -45,3 +45,52 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Copia de coordenadas al portapapeles indicando expresamente si son una posición anterior.
 - Registro documental de cada fuente en `docs/TELEFONOS_NAVARRA.md`.
 - Se mantiene pendiente la verificación CI para estos cambios; no confundir con el éxito de la APK anterior.
+
+
+## Cambio aprobado: solo lugares públicos y Enfermería (16/11/2026)
+- Pantalla inicial: incorporada acción de llamada a Enfermería del Consejo Sanitario de Navarra (948 290 290); marcado desde el dispositivo, no llamada integrada.
+- Fuente: https://portalsalud.navarra.es/es/ciudadania/atencion-pacientes/contacto/consejo-sanitario; horario publicado contradictorio entre fuentes oficiales, NO marcar «abierto ahora».
+- Auditado `Dependencia funcional` en el CSV oficial. Filtro por titularidad pública implementado con lista cerrada y bloqueo adicional en cliente.
+- Se excluyen entidades privadas y no clasificadas, incluida la opción de farmacia comercial en el inicio.
+- Datos geográficos sanitarios siguen SIN coordenadas. Emergencia hospitalaria y horarios no se infieren de la categoría.
+- Pendiente confirmar el paquete regenerado, prueba Android y verificación de contenidos con centros.
+
+## Importación pública validada — 2026-11-16
+- Importador oficial `tools/build_offline_navarra.py` auditado con el campo real `Dependencia funcional` (CSV Navarra).
+- Paquete generado: 367 recursos **exclusivamente públicos**: 304 sanitarios y 63 policiales (9 Policía Foral + 54 Guardia Civil). Titularidad privada en paquete: 0.
+- Sanitarios: 212 consultorios de atención primaria municipales, 61 centros de salud, 17 centros de atención a la salud sexual y reproductiva, 11 centros de salud mental y 3 hospitales generales públicos.
+- `assets/offline/navarra_frontline.json` contiene el paquete; el cliente rechaza registros sanitarios sin `public_ownership_verified`.
+- Acceso destacado de Enfermería de Consejo Sanitario 948 290 290 en inicio, sin promesa de disponibilidad horaria; 112 permanente.
+- Fuentes/hashes y hora de extracción en `assets/offline/manifest.json`.
+- **Pendiente:** comprobación final de CI Android después de la incorporación del paquete; verificar teléfonos, fachadas/entradas, horarios y navegación en dispositivo; no declarar apto para emergencias.
+
+## Orientación sin conexión — 2026-11-16
+- Creado `lib/help_orientation.dart`: árbol determinista de 6 situaciones. No usa Internet ni IA, no diagnostica ni recopila respuestas.
+- Cada situación tiene un primer paso concreto y alternativa de ayuda humana. Acceso permanente a 112; ANAR 116111 o Enfermería Consejo Sanitario 948 290 290 cuando corresponde.
+- Pantalla inicial «No sé qué hacer» enlazada al nuevo recorrido.
+- Creado `test/help_orientation_test.dart` para comprobar contenido, regreso, contacto y botón de emergencias.
+- **Pendiente:** confirmar CI, revisar contenido con profesionales competentes, comprobar accesibilidad y funcionamiento en Android físico; no ofrecer aún como servicio de emergencias al público.
+
+## Verificación de ayuda guiada y mapa — 16/11/2026
+- **Confirmado CI verde:** GitHub Actions run 43875274207 (analizador, tests y APK debug) tras integrar el recorrido de seis situaciones de ayuda offline. No validado aún en móvil físico.
+- Botón 112 en todas las pantallas de orientación, con enlaces telefónicos a ANAR 116111 y Enfermería 948290290 cuando corresponde.
+- Cartografía: localizada fuente MBTiles Shortbread de Navarra (~76,8 MB) y creado un validador de capas y metadatos. La primera descarga desde GitHub Actions falló por conexión al servidor Geofabrik principal (curl error 7). Se ha configurado el espejo público `download-ext2.geofabrik.de`; **la disponibilidad y decodificación no están confirmadas aún**.
+- **No hay mapa offline integrado**: los recursos siguen disponibles en un listado local con distancias solo para dependencias policiales con geometría; no se asignan coordenadas a centros sanitarios a partir de direcciones.
+- Próximas puertas: recuperar/validar MBTiles, construir estilo Shortbread con fuentes y recursos locales, incluir en APK, probar mapa realmente en modo avión, medir tamaño instalado y QA de rutas.
+
+## Linterna y control del pipeline — 16/11/2026 (continuación)
+- Añadido botón de linterna en la barra de ARTEMIS (`lib/flashlight_control.dart`) y dependencia nativa `torch_light ^2.0.0`.
+- Funciones: pulsar para encender/apagar flash, alternativa de pantalla blanca con salida visible si falla o no existe flash, intento de apagado al salir de la app; la luz puede permanecer encendida mientras se consultan otras pantallas internas.
+- Pruebas automatizadas con hardware simulado: encendido/apagado, sin cámara y error de cámara. **El funcionamiento físico todavía requiere prueba en un dispositivo Android**.
+- `.github/workflows/android.yml` reducido a análisis, tests y compilación Android. Importación de datos oficiales y pruebas MBTiles se ejecutan en workflows independientes, solo por cambios relevantes o bajo activación explícita.
+- Fallo real del mapa: Geofabrik principal cerró conexión (curl 7); espejo `download-ext2.geofabrik.de` no resuelve DNS (curl 6) desde runners GitHub. No hay MBTiles validado ni mapa offline en la app.
+- Fuentes cartográficas: MBTiles Navarra Shortbread anunciado por Geofabrik en su índice, pendiente de obtención/inspección. No presentar como integrado hasta obtener muestra y renderizar en Android sin conexión.
+- CI con linterna: verificar resultado del run 43880681600 antes de declararla compilada; la ausencia de pruebas físicas impide darla como validada para usuario final.
+
+## APK debug con linterna verificada en CI — 2026-11-16
+- Run GitHub Actions **43880681600**: análisis, tests y compilación debug Android **correctos**. Artefacto `artemis-debug-prototype`, ID `14232331780`.
+- APK extraída del artefacto GitHub: `app-debug.apk` de **150.156.848 bytes** (APK debug, no versión de distribución optimizada). SHA-256: `70224ceacfd2d7cb4c490b0bb28728a10e79b7198eb591f45fdfe93d30ec972c`.
+- La compresión del artefacto ocupa 71.455.144 bytes.
+- `test/flashlight_control_test.dart` supera casos con hardware simulado (encendido/apagado, cámara sin flash, error nativo); faltan pruebas reales en Android.
+- Cartografía offline sigue pendiente y **no forma parte de esta APK**.
+- **Advertencia imprescindible**: prototipo de desarrollo para pruebas técnicas, no usar como herramienta principal ante emergencias reales. Mantener 112 como referencia directa.

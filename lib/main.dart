@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'help_contacts.dart';
+import 'offline_resources.dart';
+import 'help_orientation.dart';
+import 'flashlight_control.dart';
 
 void main() => runApp(const ArtemisApp());
 
@@ -216,36 +219,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showHelp(String label, String details) {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 12),
-            Text(details),
-            const SizedBox(height: 16),
-            const Text('Todavía estamos verificando el directorio de Navarra. No mostramos centros ni horarios sin comprobar.'),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: _dial112,
-              icon: const Icon(Icons.call),
-              label: const Text('Si hay peligro inmediato, llamar al 112'),
-              style: FilledButton.styleFrom(backgroundColor: emergencyRed, minimumSize: const Size.fromHeight(52)),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Volver a la ayuda'),
-            ),
-          ]),
-        ),
+  void _openResources(String category) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => OfflineResourcesPage(
+        initialCategory: category,
+        onDial: _dial,
+        latitude: isCurrent ? position?.latitude : null,
+        longitude: isCurrent ? position?.longitude : null,
       ),
-    );
+    ));
   }
 
   @override
@@ -255,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('ARTEMIS', style: TextStyle(
         fontWeight: FontWeight.w800, letterSpacing: 1.8)), actions: [
+          const FlashlightAction(),
           IconButton(
             tooltip: 'Volver a buscar ubicación',
             onPressed: locating ? null : _locate,
@@ -263,6 +246,35 @@ class _HomeScreenState extends State<HomeScreen> {
         ]),
       body: SafeArea(child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 24), children: [
         Text('Ayuda cuando la necesitas', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        Semantics(
+          label: 'Enfermera del Consejo Sanitario de Navarra, orientación sanitaria telefónica',
+          child: Card(
+            color: const Color(0xFFEAF0F2),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Row(children: [
+                  Icon(Icons.support_agent, color: navy, size: 27),
+                  SizedBox(width: 10),
+                  Expanded(child: Text('Enfermera de Consejo Sanitario',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+                ]),
+                const SizedBox(height: 6),
+                const Text('¿Tienes dudas sobre tu salud? Puedes hablar con Enfermería de Navarra. Para una emergencia, usa el 112.'),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _dial('948290290'),
+                    icon: const Icon(Icons.phone),
+                    label: const Text('Llamar · 948 290 290'),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ),
         const SizedBox(height: 12),
         Semantics(label: 'Panel de ubicación', child: Container(
           padding: const EdgeInsets.all(18),
@@ -319,19 +331,15 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 12),
         Wrap(spacing: 10, runSpacing: 10, children: [
           _HelpAction(icon: Icons.medical_services_outlined, label: 'Salud',
-            onTap: () => _showHelp('Necesito atención sanitaria',
-              'Si te encuentras mal, busca un lugar seguro y pide ayuda a una persona de confianza. Ante signos graves o peligro inmediato, llama al 112.')),
+            onTap: () => _openResources('centro_sanitario')),
           _HelpAction(icon: Icons.shield_outlined, label: 'Policía',
-            onTap: () => _showHelp('Necesito ayuda para sentirme seguro',
-              'Si es seguro hacerlo, aléjate del peligro y acude a un lugar atendido o a una persona de confianza. Ante peligro inmediato, llama al 112.')),
-          _HelpAction(icon: Icons.local_pharmacy_outlined, label: 'Farmacia',
-            onTap: () => _showHelp('Necesito una farmacia',
-              'El directorio está en preparación. Si necesitas un medicamento con urgencia, busca atención sanitaria o pide ayuda a una persona de confianza.')),
+            onTap: () => _openResources('seguridad')),
           _HelpAction(icon: Icons.phone_in_talk_outlined, label: 'Teléfonos',
             onTap: _showContacts),
           _HelpAction(icon: Icons.help_outline, label: 'No sé qué hacer',
-            onTap: () => _showHelp('Vamos a encontrar el siguiente paso',
-              'No hace falta que sepas exactamente qué ocurre. Busca un lugar seguro y habla con alguien de confianza si puedes. Si hay peligro inmediato, llama al 112.')),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+              builder: (_) => HelpOrientationPage(onDial: _dial),
+            ))),
         ]),
         const SizedBox(height: 20),
         const Text('Artemis es un prototipo. Los servicios y el mapa de Navarra están en preparación.',

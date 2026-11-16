@@ -40,10 +40,10 @@ const helpContacts = <HelpContact>[
   ),
   HelpContact(
     id: 'consejo_sanitario',
-    name: 'Consejo sanitario de Navarra',
+    name: 'Enfermera de Consejo Sanitario (Navarra)',
     phone: '948290290',
-    description: 'Orientación sanitaria cuando no se trata de una urgencia.',
-    source: 'https://www.navarra.es/es/seguridad-y-emergencias/emergencias-112',
+    description: 'Orientación de Enfermería para dudas sobre síntomas, tratamientos y cuidados no urgentes. Si hay peligro inmediato, llama al 112.',
+    source: 'https://portalsalud.navarra.es/es/ciudadania/atencion-pacientes/contacto/consejo-sanitario',
     verifiedOn: '2026-11-16',
   ),
   HelpContact(
