@@ -65,7 +65,9 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
   final MapController controller = MapController();
   late final Future<MapResourceCollection> _resources = loadMapResourceCollection();
   bool tileError = false;
-  bool offlineMode = false;
+  // For minors, never contact an online tile provider by merely opening the
+  // map. Network map is an explicit user choice; offline starts by default.
+  bool offlineMode = true;
   late final Future<List<Polyline>> _offlineRoads = loadOfflineNavarraRoads();
   late final Future<OfflineStreetPaths> _streetPaths = loadOfficialStreetPaths();
   late final Future<OfflineStreetPaths> _bestStreets =
