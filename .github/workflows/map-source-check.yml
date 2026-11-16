@@ -1,4 +1,4 @@
-name: Validate online map source (no APK)
+name: Validate map source and one-time technical QA
 on:
   push:
     branches: [feat/mapa-online-recursos]
@@ -33,7 +33,7 @@ jobs:
   android-map-qa-once:
     # The user authorized a test APK only to check physical map rendering.
     # Never run this job on ordinary UI commits or documentation edits.
-    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[map-qa]')
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 10
     runs-on: ubuntu-latest
     timeout-minutes: 40
     permissions:
