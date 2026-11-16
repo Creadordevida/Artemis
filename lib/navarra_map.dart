@@ -1,8 +1,42 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'offline_resources.dart';
+
+class MapResourceCollection {
+  const MapResourceCollection({required this.directory, required this.points});
+  final List<OfflinePlace> directory;
+  final List<OfflinePlace> points;
+}
+
+/// Official public-health GIS points are independent from the local CSV
+/// directory. Do not automatically claim an identity match without review.
+Future<MapResourceCollection> loadMapResourceCollection() async {
+  final directory = await loadOfflinePlaces();
+  final contents = await rootBundle.loadString('assets/offline/navarra_sns_geo.json');
+  final gis = jsonDecode(contents) as List<dynamic>;
+  final verifiedHealth = gis
+      .where((item) {
+        final row = item as Map<String, dynamic>;
+        return row['category'] == 'centro_sanitario' &&
+            row['public_ownership_verified'] == true &&
+            row['location_quality'] == 'official_idena_facility_point_not_entrance';
+      })
+      .map((raw) => OfflinePlace.fromJson(raw as Map<String, dynamic>))
+      .where((place) => place.hasApproximatePosition)
+      .toList(growable: false);
+  final police = directory
+      .where((place) => place.category != 'centro_sanitario' && place.hasApproximatePosition)
+      .toList(growable: false);
+  return MapResourceCollection(
+    directory: directory,
+    points: [...police, ...verifiedHealth],
+  );
+}
 
 /// Map backgrounds require data connection, but pins and resource details
 /// are loaded from the bundled, verified-public directory, without network.
@@ -26,7 +60,7 @@ class NavarraMapPage extends StatefulWidget {
 
 class _NavarraMapPageState extends State<NavarraMapPage> {
   final MapController controller = MapController();
-  late final Future<List<OfflinePlace>> _resources = loadOfflinePlaces();
+  late final Future<MapResourceCollection> _resources = loadMapResourceCollection();
   bool tileError = false;
   String filter = 'all';
 
@@ -92,7 +126,7 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
         ],
       ),
       body: SafeArea(
-        child: FutureBuilder<List<OfflinePlace>>(
+        child: FutureBuilder<MapResourceCollection>(
           future: _resources,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -101,15 +135,17 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
               }
               return const Center(child: CircularProgressIndicator());
             }
-            final places = snapshot.data!;
-            // The health records have an address but not independently verified
-            // coordinates; they remain in the searchable offline list.
-            final mapped = places.where((place) =>
+            final directory = snapshot.data!.directory;
+            final points = snapshot.data!.points;
+            // Official SNS GIS points complement the distinct CSV directory.
+            final mapped = points.where((place) =>
                 place.hasApproximatePosition &&
                 (filter == 'all' ||
+                    (filter == 'health' && place.category == 'centro_sanitario') ||
                     (filter == 'police' && place.category == 'policia_foral') ||
                     (filter == 'guard' && place.category == 'guardia_civil'))).toList();
-            final unlocated = places.where((place) => !place.hasApproximatePosition).length;
+            final healthDirectoryCount = directory.where((place) => place.category == 'centro_sanitario').length;
+            final officialHealthPoints = points.where((place) => place.category == 'centro_sanitario').length;
 
             return Column(
               children: [
@@ -122,8 +158,10 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 5),
                       Text(
-                        '${mapped.length} puntos públicos con posición aproximada. '
-                        '$unlocated centros sin coordenadas verificadas: consulta el listado.',
+                        '${mapped.length} puntos públicos representados (incluye '
+                        '$officialHealthPoints ubicaciones sanitarias oficiales). '
+                        'El directorio tiene $healthDirectoryCount fichas sanitarias: '
+                        'su correspondencia individual sigue pendiente de revisión.',
                         style: const TextStyle(fontSize: 12),
                       ),
                       if (tileError)
@@ -139,6 +177,11 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                             label: const Text('Todos'),
                             selected: filter == 'all',
                             onSelected: (_) => setState(() => filter = 'all'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Salud pública'),
+                            selected: filter == 'health',
+                            onSelected: (_) => setState(() => filter = 'health'),
                           ),
                           ChoiceChip(
                             label: const Text('Policía Foral'),
@@ -190,10 +233,14 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                                 child: IconButton(
                                   tooltip: '${place.categoryLabel}: ${place.name}',
                                   icon: Icon(
-                                    Icons.shield_outlined,
-                                    color: place.category == 'policia_foral'
-                                        ? const Color(0xFF183A68)
-                                        : const Color(0xFF7B3B49),
+                                    place.category == 'centro_sanitario'
+                                        ? Icons.local_hospital_outlined
+                                        : Icons.shield_outlined,
+                                    color: place.category == 'centro_sanitario'
+                                        ? const Color(0xFF155C63)
+                                        : place.category == 'policia_foral'
+                                            ? const Color(0xFF183A68)
+                                            : const Color(0xFF7B3B49),
                                     size: 27,
                                   ),
                                   onPressed: () => _showPlace(place),
