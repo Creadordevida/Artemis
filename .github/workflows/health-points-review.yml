@@ -12,7 +12,7 @@ on:
       - '.github/workflows/health-points-review.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   inspect:
@@ -34,3 +34,17 @@ jobs:
           path: build/official-health-points/
           if-no-files-found: error
           retention-days: 14
+      - name: Store validated public coordinates in feature branch only
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/mapa-online-recursos'
+        run: |
+          mkdir -p assets/offline
+          cp build/official-health-points/navarra_sns_geo.json assets/offline/navarra_sns_geo.json
+          cp build/official-health-points/geo_manifest.json assets/offline/geo_manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/offline/navarra_sns_geo.json assets/offline/geo_manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: include validated public SNS geolocations [skip ci]"
+            git pull --rebase origin feat/mapa-online-recursos
+            git push origin HEAD:feat/mapa-online-recursos
+          fi
