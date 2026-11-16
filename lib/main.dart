@@ -1,0 +1,293 @@
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+void main() => runApp(const ArtemisApp());
+
+const navy = Color(0xFF14283B);
+const tealGrey = Color(0xFFEEF3F2);
+const emergencyRed = Color(0xFFAA3945);
+
+class ArtemisApp extends StatelessWidget {
+  const ArtemisApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Artemis',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: navy),
+        scaffoldBackgroundColor: const Color(0xFFF9FAFB),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF9FAFB),
+          foregroundColor: navy,
+          elevation: 0,
+        ),
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  Position? position;
+  bool isCurrent = false;
+  bool locating = false;
+  String status = 'Puedes buscar ayuda aunque no tengamos tu ubicación.';
+  String? manualPlace;
+
+  @override
+  void initState() {
+    super.initState();
+    _locate();
+  }
+
+  Future<void> _locate() async {
+    if (locating) return;
+    setState(() { locating = true; status = 'Buscando tu ubicación. La ayuda sigue disponible.'; });
+    try {
+      final enabled = await Geolocator.isLocationServiceEnabled();
+      if (!enabled) {
+        _setStatus('La ubicación está desactivada. Puedes activarla o indicar tu localidad.');
+        return;
+      }
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _setStatus('No tenemos permiso de ubicación. Puedes buscar ayuda sin compartirla.');
+        return;
+      }
+      final found = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 12),
+        ),
+      );
+      if (!mounted) return;
+      setState(() {
+        position = found;
+        isCurrent = true;
+        manualPlace = null;
+        status = 'Ubicación obtenida. Precisión estimada: ${found.accuracy.round()} m.';
+      });
+    } catch (_) {
+      try {
+        final previous = await Geolocator.getLastKnownPosition();
+        if (!mounted) return;
+        if (previous != null) {
+          setState(() {
+            position = previous;
+            isCurrent = false;
+            status = 'Solo tenemos una ubicación anterior. No sabemos si sigues allí.';
+          });
+        } else {
+          _setStatus('Ahora no podemos localizarte. Puedes indicar tu localidad o utilizar teléfonos de ayuda.');
+        }
+      } catch (_) {
+        _setStatus('Ahora no podemos localizarte. Los teléfonos de ayuda siguen disponibles.');
+      }
+    } finally {
+      if (mounted) setState(() => locating = false);
+    }
+  }
+
+  void _setStatus(String value) {
+    if (mounted) setState(() { status = value; isCurrent = false; });
+  }
+
+  Future<void> _dial112() async {
+    final uri = Uri(scheme: 'tel', path: '112');
+    try {
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('No pudimos abrir la llamada. Marca 112 desde el teléfono si hay cobertura.'),
+        ));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Abre el teléfono y marca 112 si existe una red disponible.'),
+        ));
+      }
+    }
+  }
+
+  Future<void> _choosePlace() async {
+    final controller = TextEditingController(text: manualPlace);
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Dónde estás?'),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Text('Escribe un pueblo o una referencia que conozcas. Por ahora se guarda como nota; la búsqueda de direcciones offline está pendiente.'),
+          const SizedBox(height: 12),
+          TextField(controller: controller, autofocus: true, maxLength: 100,
+            decoration: const InputDecoration(labelText: 'Localidad o referencia')),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Guardar')),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (selected != null && selected.isNotEmpty && mounted) {
+      setState(() {
+        manualPlace = selected;
+        position = null;
+        isCurrent = false;
+        status = 'Referencia anotada: $selected. Todavía no se ha localizado en el mapa.';
+      });
+    }
+  }
+
+  void _showHelp(String label, String details) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 12),
+            Text(details),
+            const SizedBox(height: 16),
+            const Text('Todavía estamos verificando el directorio de Navarra. No mostramos centros ni horarios sin comprobar.'),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: _dial112,
+              icon: const Icon(Icons.call),
+              label: const Text('Si hay peligro inmediato, llamar al 112'),
+              style: FilledButton.styleFrom(backgroundColor: emergencyRed, minimumSize: const Size.fromHeight(52)),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Volver a la ayuda'),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final coordinates = position == null ? null :
+      '${position!.latitude.toStringAsFixed(5)}, ${position!.longitude.toStringAsFixed(5)}';
+    return Scaffold(
+      appBar: AppBar(title: const Text('ARTEMIS', style: TextStyle(
+        fontWeight: FontWeight.w800, letterSpacing: 1.8)), actions: [
+          IconButton(
+            tooltip: 'Volver a buscar ubicación',
+            onPressed: locating ? null : _locate,
+            icon: const Icon(Icons.my_location),
+          ),
+        ]),
+      body: SafeArea(child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 24), children: [
+        Text('Ayuda cuando la necesitas', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        Semantics(label: 'Panel de ubicación', child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(color: tealGrey, borderRadius: BorderRadius.circular(18)),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Icon(isCurrent ? Icons.location_on : Icons.location_off_outlined, color: navy),
+              const SizedBox(width: 9),
+              const Expanded(child: Text('Tu ubicación', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
+            ]),
+            const SizedBox(height: 9),
+            Text(status),
+            if (coordinates != null) ...[
+              const SizedBox(height: 8),
+              SelectableText('${isCurrent ? "Coordenadas obtenidas" : "Últimas coordenadas conocidas"}: $coordinates'),
+            ],
+            if (locating) const Padding(padding: EdgeInsets.only(top: 8), child: LinearProgressIndicator()),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(onPressed: _choosePlace, icon: const Icon(Icons.edit_location_alt_outlined),
+              label: const Text('Indicar dónde estoy')),
+          ]),
+        )),
+        const SizedBox(height: 16),
+        Container(
+          height: 160,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(color: const Color(0xFFE7ECE8),
+            borderRadius: BorderRadius.circular(18)),
+          child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.map_outlined, size: 38, color: navy),
+            SizedBox(height: 8),
+            Text('Mapa de Navarra', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+            SizedBox(height: 4),
+            Text('La cartografía offline todavía no está instalada.',
+              textAlign: TextAlign.center),
+          ]),
+        ),
+        const SizedBox(height: 18),
+        Text('¿Qué necesitas?', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Wrap(spacing: 10, runSpacing: 10, children: [
+          _HelpAction(icon: Icons.medical_services_outlined, label: 'Salud',
+            onTap: () => _showHelp('Necesito atención sanitaria',
+              'Si te encuentras mal, busca un lugar seguro y pide ayuda a una persona de confianza. Ante signos graves o peligro inmediato, llama al 112.')),
+          _HelpAction(icon: Icons.shield_outlined, label: 'Policía',
+            onTap: () => _showHelp('Necesito ayuda para sentirme seguro',
+              'Si es seguro hacerlo, aléjate del peligro y acude a un lugar atendido o a una persona de confianza. Ante peligro inmediato, llama al 112.')),
+          _HelpAction(icon: Icons.local_pharmacy_outlined, label: 'Farmacia',
+            onTap: () => _showHelp('Necesito una farmacia',
+              'El directorio está en preparación. Si necesitas un medicamento con urgencia, busca atención sanitaria o pide ayuda a una persona de confianza.')),
+          _HelpAction(icon: Icons.help_outline, label: 'No sé qué hacer',
+            onTap: () => _showHelp('Vamos a encontrar el siguiente paso',
+              'No hace falta que sepas exactamente qué ocurre. Busca un lugar seguro y habla con alguien de confianza si puedes. Si hay peligro inmediato, llama al 112.')),
+        ]),
+        const SizedBox(height: 20),
+        FilledButton.icon(onPressed: _dial112,
+          style: FilledButton.styleFrom(backgroundColor: emergencyRed,
+            minimumSize: const Size.fromHeight(58)),
+          icon: const Icon(Icons.call),
+          label: const Text('Emergencias 112', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+        const SizedBox(height: 12),
+        const Text('La llamada requiere una red telefónica disponible. Artemis no sustituye a los servicios de emergencias.',
+          style: TextStyle(color: Color(0xFF53616B), fontSize: 12)),
+      ])),
+    );
+  }
+}
+
+class _HelpAction extends StatelessWidget {
+  const _HelpAction({required this.icon, required this.label, required this.onTap});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: (MediaQuery.sizeOf(context).width - 42) / 2,
+    height: 88,
+    child: OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 26),
+      label: Text(label, textAlign: TextAlign.center),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: navy,
+        backgroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    ),
+  );
+}
