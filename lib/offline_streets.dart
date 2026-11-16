@@ -106,3 +106,32 @@ List<Polyline<Object>> _readLines(dynamic raw, Color color, double width) {
     return Polyline<Object>(points: coords, strokeWidth: width, color: color);
   }).toList(growable: false);
 }
+
+/// Return only lines whose geometry bounds intersect the visible map.
+/// This avoids sending tens of thousands of off-screen polylines to the
+/// renderer. A crossing segment is retained even when neither end is inside.
+List<Polyline<Object>> visibleOfflineLines(
+  List<Polyline<Object>> source,
+  LatLngBounds visibleBounds,
+) {
+  final result = <Polyline<Object>>[];
+  final west = visibleBounds.west;
+  final east = visibleBounds.east;
+  final south = visibleBounds.south;
+  final north = visibleBounds.north;
+
+  for (final line in source) {
+    double minLat = 91, maxLat = -91, minLon = 181, maxLon = -181;
+    for (final point in line.points) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLon) minLon = point.longitude;
+      if (point.longitude > maxLon) maxLon = point.longitude;
+    }
+    if (maxLat >= south && minLat <= north &&
+        maxLon >= west && minLon <= east) {
+      result.add(line);
+    }
+  }
+  return result;
+}
