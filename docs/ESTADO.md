@@ -38,3 +38,10 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Añadido acceso `Teléfonos` en pantalla principal con fichas y apertura del marcador.
 - Añadido test de estructura de datos; nueva compilación todavía por confirmar.
 - **Advertencia:** estos contactos no constituyen directorio físico geolocalizado. No se han incorporado mapas, horarios presenciales ni rutas; no distribuir como herramienta operativa.
+
+## Continuación — contactos y coordenadas — 2026-11-16
+- Directorio local de seis teléfonos oficiales con fuente y fecha en `lib/help_contacts.dart`.
+- Pantalla «Teléfonos» con apertura de marcador; el funcionamiento en dispositivo no está todavía validado.
+- Copia de coordenadas al portapapeles indicando expresamente si son una posición anterior.
+- Registro documental de cada fuente en `docs/TELEFONOS_NAVARRA.md`.
+- Se mantiene pendiente la verificación CI para estos cambios; no confundir con el éxito de la APK anterior.
