@@ -104,7 +104,8 @@ class _NavarraOfflineMapState extends State<NavarraOfflineMap> {
                   lon: widget.longitude!, lat: widget.latitude!,
                 ))),
               ],
-              color: const .literal(Color(0xFF3479E5)),
+              color: .literal(widget.isCurrent
+                  ? const Color(0xFF3479E5) : const Color(0xFF7C8895)),
               radius: const .literal(9),
               strokeColor: const .literal(Colors.white),
               strokeWidth: const .literal(3),
