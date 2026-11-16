@@ -251,14 +251,6 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                                   onPressed: () => _showPlace(place),
                                 ),
                               )),
-                              if (widget.currentLatitude != null && widget.currentLongitude != null)
-                                Marker(
-                                  width: 45,
-                                  height: 45,
-                                  point: LatLng(widget.currentLatitude!, widget.currentLongitude!),
-                                  child: const Icon(Icons.my_location,
-                                    size: 27, color: Color(0xFF2567C5)),
-                                ),
                             ],
                             builder: (context, clusterMarkers) => DecoratedBox(
                               decoration: BoxDecoration(
@@ -278,6 +270,22 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                             ),
                             ),
                           ),
+                          // The location marker must never be merged into a
+                          // cluster of public institutions.
+                          if (widget.currentLatitude != null &&
+                              widget.currentLongitude != null)
+                            MarkerLayer(
+                              markers: [
+                              if (widget.currentLatitude != null && widget.currentLongitude != null)
+                                Marker(
+                                  width: 45,
+                                  height: 45,
+                                  point: LatLng(widget.currentLatitude!, widget.currentLongitude!),
+                                  child: const Icon(Icons.my_location,
+                                    size: 27, color: Color(0xFF2567C5)),
+                                ),
+                              ],
+                            ),
                           // Always visible attribution; no hiding in a popup.
                           const Align(
                             alignment: Alignment.bottomRight,
