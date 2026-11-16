@@ -58,7 +58,7 @@ OfflineStreetPaths parseOfficialStreetPaths(String encoded) {
   final roads = _readLines(obj['streets'], const Color(0xFF637D93), 2.1);
   final paths = _readLines(obj['paths'], const Color(0xFF9B8A6D), 1.35);
   final rawLabels = obj['labels'] as List<dynamic>;
-  if (rawLabels.length > 10000) {
+  if (rawLabels.length > 60000) {
     throw const FormatException('Abnormal street-label volume');
   }
   final labels = rawLabels.map((raw) {
@@ -82,7 +82,7 @@ OfflineStreetPaths parseOfficialStreetPaths(String encoded) {
 
 List<Polyline<Object>> _readLines(dynamic raw, Color color, double width) {
   final lines = raw as List<dynamic>;
-  if (lines.length > 50000) {
+  if (lines.length > 130000) {
     throw const FormatException('Abnormal vector line count');
   }
   return lines.map((item) {
