@@ -58,7 +58,7 @@ def label_from_properties(properties: dict) -> str:
         if (key.startswith("NOM") or key.startswith("DENOM")) and value:
             return value
     # Absence of a human-readable name is a blocker, not a license to invent one.
-    raise ValueError("No usable name field found in official geodata")
+    raise ValueError(f"No usable name field found. Available columns: {sorted(lookup.keys())}")
 
 
 def spatial_points(data: bytes, category: str, source: str):
