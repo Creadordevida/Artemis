@@ -39,6 +39,19 @@ Future<OfflineStreetPaths> loadOfficialStreetPaths() async {
   return parsed;
 }
 
+/// Navarra-wide cadastral axes and names, stored locally. These lines
+/// describe mapped streets, not pedestrian access or routes.
+Future<OfflineStreetPaths> loadCadastralStreetPaths() async {
+  final source = await rootBundle.loadString(
+    'assets/offline/navarra_cadastral_streets.json',
+  );
+  final data = await compute(parseOfficialStreetPaths, source);
+  if (data.streets.length < 20000 || data.labelCount < 5000) {
+    throw StateError('El callejero catastral local está incompleto.');
+  }
+  return data;
+}
+
 /// Pure decoding function; may execute in a background isolate.
 OfflineStreetPaths parseOfficialStreetPaths(String encoded) {
   final obj = jsonDecode(encoded) as Map<String, dynamic>;
