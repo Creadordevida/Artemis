@@ -55,3 +55,12 @@ Referencias:
 - https://pub.dev/packages/flutter_map_vector_tiles_mbtiles
 - https://geoportal.navarra.es/es/idena/descargar
 - https://datosabiertos.navarra.es/dataset/centros-sanitarios
+
+## 6. Primera cartografía offline ejecutada (16/11/2026)
+- Ya existe **un mapa básico real de ejes oficiales de carretera** sin red. Procedencia: `INFRAE_Lin_CtraEje.zip` de IDENA, convertido automáticamente a JSON de líneas con simplificación de 15 m, 17.479 tramos, 998.869 bytes.
+- La pantalla `NavarraMapPage` permite alternar entre **online (teselas OSM)** y **offline (ejes de carretera IDENA)**. Todos los marcadores oficiales públicos están disponibles en ambos modos; la ubicación GPS proviene del teléfono y no requiere conexión para recibir señal satelital (puede tardar o fallar).
+- La vista offline es deliberadamente limitada: **no es un mapa integral de calles, senderos y edificios**, ni es un planificador de rutas; los tramos de carreteras no deben presentarse como seguros para caminar. Se conserva acceso 112 siempre visible.
+- Probar en dispositivo Android real y medir velocidad de render de 17.479 polilíneas, consumo de RAM y tiempo de carga antes de considerarlo apto para test externo.
+- La cobertura urbana posterior puede investigarse en el catálogo SITNA 1:1.000: capas `CARTO1_Lin_30Calle` (eje de calle) y `CARTO1_Lin_33Camino` (camino/senda), **aún no obtenidas ni verificadas como paquetes descargables**. No basta con aparecer en WMS/WFS para asumir descarga completa y legal.
+- Fuente del catálogo de capas oficial (octubre 2026): https://idena.navarra.es/descargas/wms_wfs_idena.pdf . Datos vectoriales bajo CC BY 4.0: https://geoportal.navarra.es/es/idena/descargar .
+- Comprobación de identidad: códigos de centros sanitarios de la fuente CSV y de las fuentes GIS no coinciden exactamente. Se mantienen como bases relacionadas pero independientes hasta auditoría y conciliación segura.
