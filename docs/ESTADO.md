@@ -31,3 +31,10 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Manifest Android incorporado con permisos de ubicación foreground y consulta del marcador telefónico.
 - Test actualizado para comprobar visibilidad de 112 incluso después de hacer scroll.
 - **Pendiente:** confirmar nueva ejecución completa de CI y prueba de APK; no declarar compilado hasta resultado correcto.
+
+## Continuación — directorio telefónico offline — 2026-11-16
+- Comprobada compilación debug previa: run 43867269437, análisis, tests y APK correctos (artefacto de pruebas disponible, no apto para emergencias).
+- Añadido `lib/help_contacts.dart`: seis contactos guardados localmente y metadatos de procedencia, con fecha de verificación. 112, ANAR 116111, consejo sanitario Navarra, farmacias de guardia, Guardia Civil y carreteras.
+- Añadido acceso `Teléfonos` en pantalla principal con fichas y apertura del marcador.
+- Añadido test de estructura de datos; nueva compilación todavía por confirmar.
+- **Advertencia:** estos contactos no constituyen directorio físico geolocalizado. No se han incorporado mapas, horarios presenciales ni rutas; no distribuir como herramienta operativa.
