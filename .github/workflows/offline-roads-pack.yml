@@ -5,6 +5,11 @@ on:
     paths:
       - 'tools/build_offline_roads.py'
       - '.github/workflows/offline-roads-pack.yml'
+  pull_request:
+    branches: [feat/datos-oficiales-navarra]
+    paths:
+      - 'tools/build_offline_roads.py'
+      - '.github/workflows/offline-roads-pack.yml'
   workflow_dispatch:
 
 permissions:
