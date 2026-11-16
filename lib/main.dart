@@ -276,6 +276,35 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 24), children: [
         Text('Ayuda cuando la necesitas', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
+        Semantics(
+          label: 'Enfermera del Consejo Sanitario de Navarra, orientación sanitaria telefónica',
+          child: Card(
+            color: const Color(0xFFEAF0F2),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Row(children: [
+                  Icon(Icons.support_agent, color: navy, size: 27),
+                  SizedBox(width: 10),
+                  Expanded(child: Text('Enfermera de Consejo Sanitario',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+                ]),
+                const SizedBox(height: 6),
+                const Text('¿Tienes dudas sobre tu salud? Puedes hablar con Enfermería de Navarra. Para una emergencia, usa el 112.'),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _dial('948290290'),
+                    icon: const Icon(Icons.phone),
+                    label: const Text('Llamar · 948 290 290'),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
         Semantics(label: 'Panel de ubicación', child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(color: tealGrey, borderRadius: BorderRadius.circular(18)),
