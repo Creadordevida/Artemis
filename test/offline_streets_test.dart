@@ -33,4 +33,12 @@ void main() {
     });
     expect(() => parseOfficialStreetPaths(payload), throwsFormatException);
   });
+  test('Carga íntegramente el paquete regional oficial sin Internet', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final data = await loadOfficialStreetPaths();
+    expect(data.streets.length, 7749);
+    expect(data.paths.length, 12683);
+    expect(data.labelCount, 6274);
+  });
+
 }
