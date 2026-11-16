@@ -2,7 +2,7 @@
     <!-- Location is used on-device only; no continuous background tracking. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- Online map tile requests only: no position is transmitted by Artemis. -->
+    <!-- Online basemap requests disclose the area being viewed to the tile provider. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="Artemis"
