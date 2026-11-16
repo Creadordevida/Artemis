@@ -45,3 +45,12 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Copia de coordenadas al portapapeles indicando expresamente si son una posición anterior.
 - Registro documental de cada fuente en `docs/TELEFONOS_NAVARRA.md`.
 - Se mantiene pendiente la verificación CI para estos cambios; no confundir con el éxito de la APK anterior.
+
+
+## Cambio aprobado: solo lugares públicos y Enfermería (16/11/2026)
+- Pantalla inicial: incorporada acción de llamada a Enfermería del Consejo Sanitario de Navarra (948 290 290); marcado desde el dispositivo, no llamada integrada.
+- Fuente: https://portalsalud.navarra.es/es/ciudadania/atencion-pacientes/contacto/consejo-sanitario; horario publicado contradictorio entre fuentes oficiales, NO marcar «abierto ahora».
+- Auditado `Dependencia funcional` en el CSV oficial. Filtro por titularidad pública implementado con lista cerrada y bloqueo adicional en cliente.
+- Se excluyen entidades privadas y no clasificadas, incluida la opción de farmacia comercial en el inicio.
+- Datos geográficos sanitarios siguen SIN coordenadas. Emergencia hospitalaria y horarios no se infieren de la categoría.
+- Pendiente confirmar el paquete regenerado, prueba Android y verificación de contenidos con centros.
