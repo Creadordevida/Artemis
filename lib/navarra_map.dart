@@ -1,0 +1,289 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
+import 'offline_resources.dart';
+
+/// Map backgrounds require data connection, but pins and resource details
+/// are loaded from the bundled, verified-public directory, without network.
+/// Never infer a hospital entrance, business hours or walking route from
+/// a postal address or point geometry.
+class NavarraMapPage extends StatefulWidget {
+  const NavarraMapPage({
+    super.key,
+    required this.onDial,
+    this.currentLatitude,
+    this.currentLongitude,
+  });
+
+  final Future<void> Function(String) onDial;
+  final double? currentLatitude;
+  final double? currentLongitude;
+
+  @override
+  State<NavarraMapPage> createState() => _NavarraMapPageState();
+}
+
+class _NavarraMapPageState extends State<NavarraMapPage> {
+  final MapController controller = MapController();
+  late final Future<List<OfflinePlace>> _resources = loadOfflinePlaces();
+  bool tileError = false;
+  String filter = 'all';
+
+  LatLng get startPoint =>
+      widget.currentLatitude != null && widget.currentLongitude != null
+          ? LatLng(widget.currentLatitude!, widget.currentLongitude!)
+          : const LatLng(42.8125, -1.6458);
+
+  void _showPlace(OfflinePlace item) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 5, 20, 22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item.name, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 6),
+              Text(item.categoryLabel),
+              if (item.municipality.isNotEmpty) Text(item.municipality),
+              if (item.address.isNotEmpty) Text(item.address),
+              const SizedBox(height: 10),
+              const Text(
+                'La posición es aproximada: no está verificada como entrada accesible. Horarios y atención de urgencias sin confirmar.',
+              ),
+              const SizedBox(height: 9),
+              const Text(
+                'Origen: directorio público de Navarra guardado en Artemis.',
+                style: TextStyle(fontSize: 12, color: Color(0xFF526170)),
+              ),
+              const SizedBox(height: 12),
+              if (item.phone != null && item.phone!.trim().isNotEmpty)
+                OutlinedButton.icon(
+                  onPressed: () => widget.onDial(item.phone!.trim()),
+                  icon: const Icon(Icons.phone),
+                  label: Text('Llamar: ${item.phone}'),
+                ),
+              OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Volver al mapa'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mapa de Navarra'),
+        actions: [
+          IconButton(
+            tooltip: 'Centrar mapa',
+            icon: const Icon(Icons.my_location),
+            onPressed: () => controller.move(startPoint, 12),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: FutureBuilder<List<OfflinePlace>>(
+          future: _resources,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              if (snapshot.hasError) {
+                return _MapNoData(onDial: widget.onDial);
+              }
+              return const Center(child: CircularProgressIndicator());
+            }
+            final places = snapshot.data!;
+            // The health records have an address but not independently verified
+            // coordinates; they remain in the searchable offline list.
+            final mapped = places.where((place) =>
+                place.hasApproximatePosition &&
+                (filter == 'all' ||
+                    (filter == 'police' && place.category == 'policia_foral') ||
+                    (filter == 'guard' && place.category == 'guardia_civil'))).toList();
+            final unlocated = places.where((place) => !place.hasApproximatePosition).length;
+
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Mapa online · recursos públicos guardados offline',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 5),
+                      Text(
+                        '${mapped.length} puntos públicos con posición aproximada. '
+                        '$unlocated centros sin coordenadas verificadas: consulta el listado.',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      if (tileError)
+                        const Text(
+                          'No se pudieron cargar algunas calles. Los puntos y el directorio siguen disponibles sin Internet.',
+                          style: TextStyle(color: Color(0xFF9E3540), fontSize: 12),
+                        ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 7,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Todos'),
+                            selected: filter == 'all',
+                            onSelected: (_) => setState(() => filter = 'all'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Policía Foral'),
+                            selected: filter == 'police',
+                            onSelected: (_) => setState(() => filter = 'police'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Guardia Civil'),
+                            selected: filter == 'guard',
+                            onSelected: (_) => setState(() => filter = 'guard'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      FlutterMap(
+                        mapController: controller,
+                        options: MapOptions(
+                          initialCenter: startPoint,
+                          initialZoom: widget.currentLatitude == null ? 9.8 : 12,
+                          minZoom: 6,
+                          maxZoom: 18,
+                          backgroundColor: const Color(0xFFE8EDF0),
+                        ),
+                        children: [
+                          TileLayer(
+                            // This is ONLY for interactive online use. OSM
+                            // prohibits bulk tile downloads for offline use.
+                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'org.artemis.help',
+                            maxNativeZoom: 19,
+                            errorTileCallback: (_, __, ___) {
+                              if (tileError || !mounted) return;
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) setState(() => tileError = true);
+                              });
+                            },
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              ...mapped.map((place) => Marker(
+                                width: 45,
+                                height: 45,
+                                point: LatLng(place.latitude!, place.longitude!),
+                                child: IconButton(
+                                  tooltip: '${place.categoryLabel}: ${place.name}',
+                                  icon: Icon(
+                                    Icons.shield_outlined,
+                                    color: place.category == 'policia_foral'
+                                        ? const Color(0xFF183A68)
+                                        : const Color(0xFF7B3B49),
+                                    size: 27,
+                                  ),
+                                  onPressed: () => _showPlace(place),
+                                ),
+                              )),
+                              if (widget.currentLatitude != null && widget.currentLongitude != null)
+                                Marker(
+                                  width: 45,
+                                  height: 45,
+                                  point: LatLng(widget.currentLatitude!, widget.currentLongitude!),
+                                  child: const Icon(Icons.my_location,
+                                    size: 27, color: Color(0xFF2567C5)),
+                                ),
+                            ],
+                          ),
+                          // Always visible attribution; no hiding in a popup.
+                          const Align(
+                            alignment: Alignment.bottomRight,
+                            child: ColoredBox(
+                              color: Color(0xEFFFFFFF),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                                child: Text('© OpenStreetMap contributors',
+                                    style: TextStyle(fontSize: 10, color: Color(0xFF203040))),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        left: 12,
+                        bottom: 12,
+                        child: FilledButton.tonalIcon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => OfflineResourcesPage(
+                                initialCategory: 'all',
+                                onDial: widget.onDial,
+                                latitude: widget.currentLatitude,
+                                longitude: widget.currentLongitude,
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.list_alt),
+                          label: const Text('Ver directorio'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 11),
+          child: FilledButton.icon(
+            onPressed: () => widget.onDial('112'),
+            icon: const Icon(Icons.phone),
+            label: const Text('Emergencias 112'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFAA3945),
+              minimumSize: const Size.fromHeight(52),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapNoData extends StatelessWidget {
+  const _MapNoData({required this.onDial});
+  final Future<void> Function(String) onDial;
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text('No podemos abrir ahora el directorio de recursos.'),
+        const SizedBox(height: 14),
+        OutlinedButton.icon(
+          onPressed: () => onDial('112'),
+          icon: const Icon(Icons.phone),
+          label: const Text('Emergencias 112'),
+        ),
+      ]),
+    ),
+  );
+}
