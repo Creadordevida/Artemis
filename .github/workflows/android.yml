@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,3 +65,18 @@ jobs:
           path: build/offline-data/
           if-no-files-found: error
           retention-days: 14
+      - name: Snapshot public-only dataset on internal feature branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/datos-oficiales-navarra'
+        run: |
+          git fetch origin feat/datos-oficiales-navarra
+          git checkout -B feat/datos-oficiales-navarra origin/feat/datos-oficiales-navarra
+          mkdir -p assets/offline
+          cp build/offline-data/navarra_frontline.json assets/offline/navarra_frontline.json
+          cp build/offline-data/manifest.json assets/offline/manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/offline/navarra_frontline.json assets/offline/manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: include audited public-only Navarra facilities [skip ci]"
+            git push origin HEAD:feat/datos-oficiales-navarra
+          fi
