@@ -178,28 +178,31 @@ def build(out: Path, downloader=fetch):
     # Conservative shortlist for an adolescent: exclude private-specialist and
     # commercial consultations from the primary help entry points. Presence
     # does NOT imply emergency or 24h availability.
-    primary_types = {"Centros de salud", "Consultorios de atención primaria"}
-    # Require explicit public status, not simply a public-facing establishment.
-    # Unknown/ambiguous ownership is deliberately excluded.
+    primary_types = {
+        "Centros de salud",
+        "Consultorios de atención primaria",
+        "Hospitales generales",
+        "Centros de salud mental",
+        "Centros de atencion a la salud sexual y reproductiva",
+    }
+    # Values audited against Navarra official CSV 'Dependencia funcional'.
+    # These are public providers; private, unspecified and ambiguous types
+    # must be excluded. Being in open data does not mean publicly operated.
+    public_owners = {
+        "Municipal",
+        "SNS-O",
+        "Otros del Gobierno de Navarra",
+        "Otras entidades u organismos públicos",
+        "Otros Públicos",
+    }
+
     def public_health(entry):
         if entry["category"] != "centro_sanitario":
             return False
-        owner = entry.get("ownership", "").casefold().strip()
-        # Named, official public health providers, or explicit public control.
-        public_labels = (
-            "servicio navarro de salud", "osasunbidea",
-            "gobierno de navarra", "administración sanitaria pública",
-            "administracion sanitaria publica",
-        )
-        is_public = "públic" in owner or "public" in owner or any(
-            label in owner for label in public_labels
-        )
-        private = "privad" in owner
-        entry["public_ownership_verified"] = is_public and not private
-        return (
-            entry.get("type") in primary_types
-            and entry["public_ownership_verified"]
-        )
+        ownership = entry.get("ownership", "").strip()
+        verified = ownership in public_owners
+        entry["public_ownership_verified"] = verified
+        return verified and entry.get("type") in primary_types
     frontline = [entry for entry in combined if
                  entry["category"] in ("policia_foral", "guardia_civil") or
                  public_health(entry)]
