@@ -7,6 +7,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'offline_resources.dart';
+import 'offline_roads.dart';
 
 class MapResourceCollection {
   const MapResourceCollection({required this.directory, required this.points});
@@ -63,6 +64,8 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
   final MapController controller = MapController();
   late final Future<MapResourceCollection> _resources = loadMapResourceCollection();
   bool tileError = false;
+  bool offlineMode = false;
+  late final Future<List<Polyline>> _offlineRoads = loadOfflineNavarraRoads();
   String filter = 'all';
 
   LatLng get startPoint =>
@@ -155,8 +158,30 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Mapa online · recursos públicos guardados offline',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        offlineMode
+                          ? 'Mapa básico OFFLINE · ejes oficiales de carretera'
+                          : 'Mapa ONLINE · recursos públicos guardados offline',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      SegmentedButton<bool>(
+                        segments: const [
+                          ButtonSegment(value: false, icon: Icon(Icons.wifi),
+                            label: Text('Online')),
+                          ButtonSegment(value: true, icon: Icon(Icons.wifi_off),
+                            label: Text('Sin Internet')),
+                        ],
+                        selected: {offlineMode},
+                        onSelectionChanged: (selection) {
+                          setState(() => offlineMode = selection.first);
+                        },
+                      ),
+                      if (offlineMode)
+                        const Text(
+                          'Vista local limitada: muestra carreteras, no todas las calles ni caminos. No calcula rutas ni indica que sean seguras para caminar.',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF526170)),
+                        ),
                       const SizedBox(height: 5),
                       Text(
                         '${mapped.length} puntos públicos representados (incluye '
@@ -165,7 +190,7 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                         'su correspondencia individual sigue pendiente de revisión.',
                         style: const TextStyle(fontSize: 12),
                       ),
-                      if (tileError)
+                      if (tileError && !offlineMode)
                         const Text(
                           'No se pudieron cargar algunas calles. Los puntos y el directorio siguen disponibles sin Internet.',
                           style: TextStyle(color: Color(0xFF9E3540), fontSize: 12),
@@ -212,9 +237,28 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                           backgroundColor: const Color(0xFFE8EDF0),
                         ),
                         children: [
-                          TileLayer(
-                            // This is ONLY for interactive online use. OSM
-                            // prohibits bulk tile downloads for offline use.
+                          if (offlineMode)
+                            FutureBuilder<List<Polyline>>(
+                              future: _offlineRoads,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return const ColoredBox(
+                                    color: Color(0xFFE8EDF0),
+                                    child: Center(child: Text(
+                                      'No se ha podido abrir el mapa local. Los puntos públicos y teléfonos siguen disponibles.',
+                                      textAlign: TextAlign.center,
+                                    )),
+                                  );
+                                }
+                                if (!snapshot.hasData) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                return PolylineLayer(polylines: snapshot.data!);
+                              },
+                            ),
+                          if (!offlineMode)
+                            TileLayer(
+                            // Online tiles ONLY; no bulk or offline OSM tile scraping.
                             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                             userAgentPackageName: 'org.artemis.help',
                             maxNativeZoom: 19,
@@ -287,14 +331,18 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                               ],
                             ),
                           // Always visible attribution; no hiding in a popup.
-                          const Align(
+                          Align(
                             alignment: Alignment.bottomRight,
                             child: ColoredBox(
-                              color: Color(0xEFFFFFFF),
+                              color: const Color(0xEFFFFFFF),
                               child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                                child: Text('© OpenStreetMap contributors',
-                                    style: TextStyle(fontSize: 10, color: Color(0xFF203040))),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                                child: Text(
+                                  offlineMode
+                                    ? '© SITNA / Gobierno de Navarra · CC BY 4.0'
+                                    : '© OpenStreetMap contributors',
+                                  style: const TextStyle(fontSize: 10, color: Color(0xFF203040)),
+                                ),
                               ),
                             ),
                           ),
