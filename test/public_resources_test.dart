@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:artemis/help_contacts.dart';
 import 'package:artemis/offline_resources.dart';
@@ -5,31 +8,49 @@ import 'package:artemis/offline_resources.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('Solo aparecen dependencias policiales o centros sanitarios públicos verificados', () async {
+  test('Paquete offline contiene solamente entidades públicas verificadas', () async {
+    final manifest = jsonDecode(
+      await rootBundle.loadString('assets/offline/manifest.json'),
+    ) as Map<String, dynamic>;
+    expect(manifest['public_only_filter'], isTrue);
+    expect(manifest['public_health_count'], greaterThan(100));
+
+    final raw = jsonDecode(
+      await rootBundle.loadString('assets/offline/navarra_frontline.json'),
+    ) as List<dynamic>;
+    for (final item in raw) {
+      final resource = item as Map<String, dynamic>;
+      if (resource['category'] == 'centro_sanitario') {
+        expect(resource['public_ownership_verified'], isTrue);
+        expect(
+          (resource['ownership'] as String).toLowerCase().contains('privad'),
+          isFalse,
+        );
+      }
+    }
+
     final places = await loadOfflinePlaces();
-    expect(places, isNotEmpty);
-    expect(places.any((p) => p.category == 'policia_foral'), isTrue);
-    expect(places.any((p) => p.category == 'guardia_civil'), isTrue);
+    expect(places.where((p) => p.category == 'centro_sanitario').length, greaterThan(100));
+    expect(places.where((p) => p.category == 'policia_foral').length, 9);
+    expect(places.where((p) => p.category == 'guardia_civil').length, 54);
     for (final place in places) {
       expect(place.name.isNotEmpty, isTrue);
       expect(place.source.startsWith('https://'), isTrue);
       expect(place.type.contains('Clínicas dentales'), isFalse);
-      if (place.category == 'centro_sanitario') {
-        expect(place.type == 'Centros de salud' ||
-            place.type == 'Consultorios de atención primaria', isTrue);
-      }
     }
   });
 
-  test('La ubicación no se inventa cuando faltan coordenadas', () async {
+  test('No inventa coordenadas cuando el recurso solo tiene dirección', () async {
     final places = await loadOfflinePlaces();
-    final publicPolice = places.firstWhere((p) => p.hasApproximatePosition);
-    expect(publicPolice.distanceKm(null, null), isNull);
-    expect(publicPolice.distanceKm(publicPolice.latitude, publicPolice.longitude),
-        closeTo(0, 0.001));
+    final police = places.firstWhere((p) => p.hasApproximatePosition);
+    final health = places.firstWhere((p) => p.category == 'centro_sanitario');
+    expect(police.distanceKm(null, null), isNull);
+    expect(police.distanceKm(police.latitude, police.longitude), closeTo(0, 0.001));
+    expect(health.hasApproximatePosition, isFalse);
+    expect(health.distanceKm(police.latitude, police.longitude), isNull);
   });
 
-  test('Enfermera del Consejo Sanitario está en contactos offline', () {
+  test('Enfermera pública de Navarra disponible en contactos offline', () {
     final nurse = helpContacts.singleWhere((c) => c.id == 'consejo_sanitario');
     expect(nurse.phone, '948290290');
     expect(nurse.name.toLowerCase().contains('enfermera'), isTrue);
