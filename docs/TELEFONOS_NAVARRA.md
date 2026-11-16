@@ -18,3 +18,10 @@ Fecha de revisión inicial: 2026-11-16. Estos son contactos telefónicos, NO ubi
 - Revalidar cada ficha al menos antes de publicación y al actualizar los paquetes de datos.
 - Mantener servicio, teléfono y fuente en la misma ficha.
 - No añadir servicios a partir de listados no comprobados.
+
+
+## Enfermería de Consejo Sanitario
+- Servicio **público** atendido por profesionales de Enfermería; teléfono **948 290 290**.
+- Fuente oficial: https://portalsalud.navarra.es/es/ciudadania/atencion-pacientes/contacto/consejo-sanitario
+- Utilidad: síntomas, tratamientos y dudas no urgentes; 112 ante peligro inmediato.
+- El portal oficial y comunicaciones anteriores contienen horarios no completamente coincidentes. La app no afirmará «abierto ahora» hasta aclarar la vigencia.
