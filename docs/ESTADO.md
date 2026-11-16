@@ -54,3 +54,12 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Se excluyen entidades privadas y no clasificadas, incluida la opción de farmacia comercial en el inicio.
 - Datos geográficos sanitarios siguen SIN coordenadas. Emergencia hospitalaria y horarios no se infieren de la categoría.
 - Pendiente confirmar el paquete regenerado, prueba Android y verificación de contenidos con centros.
+
+## Importación pública validada — 2026-11-16
+- Importador oficial `tools/build_offline_navarra.py` auditado con el campo real `Dependencia funcional` (CSV Navarra).
+- Paquete generado: 367 recursos **exclusivamente públicos**: 304 sanitarios y 63 policiales (9 Policía Foral + 54 Guardia Civil). Titularidad privada en paquete: 0.
+- Sanitarios: 212 consultorios de atención primaria municipales, 61 centros de salud, 17 centros de atención a la salud sexual y reproductiva, 11 centros de salud mental y 3 hospitales generales públicos.
+- `assets/offline/navarra_frontline.json` contiene el paquete; el cliente rechaza registros sanitarios sin `public_ownership_verified`.
+- Acceso destacado de Enfermería de Consejo Sanitario 948 290 290 en inicio, sin promesa de disponibilidad horaria; 112 permanente.
+- Fuentes/hashes y hora de extracción en `assets/offline/manifest.json`.
+- **Pendiente:** comprobación final de CI Android después de la incorporación del paquete; verificar teléfonos, fachadas/entradas, horarios y navegación en dispositivo; no declarar apto para emergencias.
