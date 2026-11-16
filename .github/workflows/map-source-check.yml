@@ -2,6 +2,8 @@ name: Validate online map source (no APK)
 on:
   push:
     branches: [feat/mapa-online-recursos]
+  pull_request:
+    branches: [feat/datos-oficiales-navarra]
   workflow_dispatch:
 
 permissions:
