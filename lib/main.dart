@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'data/help_resource.dart';
+import 'data/offline_help_directory.dart';
 
 void main() => runApp(const ArtemisApp());
 
@@ -43,11 +45,55 @@ class _HomeScreenState extends State<HomeScreen> {
   bool locating = false;
   String status = 'Puedes buscar ayuda aunque no tengamos tu ubicación.';
   String? manualPlace;
+  OfflineHelpDirectory? localDirectory;
+  bool directoryFailed = false;
 
   @override
   void initState() {
     super.initState();
     _locate();
+    _loadDirectory();
+  }
+
+  Future<void> _loadDirectory() async {
+    try {
+      final result = await OfflineHelpDirectory.fromAsset(
+        'assets/regions/navarra/help_resources.json',
+      );
+      if (mounted) setState(() { localDirectory = result; directoryFailed = false; });
+    } catch (_) {
+      if (mounted) setState(() { directoryFailed = true; });
+    }
+  }
+
+  void _showPhones() {
+    final phones = localDirectory?.byKind(HelpKind.emergency) ?? const <HelpResource>[];
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Teléfonos de ayuda', style: Theme.of(ctx).textTheme.headlineSmall),
+          const SizedBox(height: 10),
+          if (phones.isEmpty)
+            Text(directoryFailed
+              ? 'No se pudo consultar la lista guardada. Puedes marcar el 112 directamente.'
+              : 'El directorio se está preparando. Puedes marcar el 112 directamente.'),
+          for (final phone in phones)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.phone),
+              title: Text(phone.name),
+              subtitle: Text('Teléfono: ${phone.phone ?? "Sin teléfono"} · Fuente oficial guardada'),
+              onTap: phone.phone == '112' ? () { Navigator.pop(ctx); _dial112(); } : null,
+            ),
+          const Text('Las llamadas necesitan una red telefónica disponible.'),
+          const SizedBox(height: 10),
+          FilledButton(onPressed: () => Navigator.pop(ctx), child: const Text('Volver al mapa y la ayuda')),
+        ]),
+      )),
+    );
   }
 
   Future<void> _locate() async {
@@ -251,6 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _HelpAction(icon: Icons.local_pharmacy_outlined, label: 'Farmacia',
             onTap: () => _showHelp('Necesito una farmacia',
               'El directorio está en preparación. Si necesitas un medicamento con urgencia, busca atención sanitaria o pide ayuda a una persona de confianza.')),
+          _HelpAction(icon: Icons.phone_outlined, label: 'Teléfonos', onTap: _showPhones),
           _HelpAction(icon: Icons.help_outline, label: 'No sé qué hacer',
             onTap: () => _showHelp('Vamos a encontrar el siguiente paso',
               'No hace falta que sepas exactamente qué ocurre. Busca un lugar seguro y habla con alguien de confianza si puedes. Si hay peligro inmediato, llama al 112.')),
