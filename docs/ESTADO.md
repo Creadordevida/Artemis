@@ -105,3 +105,13 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - **Ruta alternativa offline verificada**: capa IDENA `INFRAE_Lin_CtraEje.zip`, CC BY 4.0, disponible desde GitHub Actions. Auditoría: 3.443.729 bytes ZIP, 17.479 trazados de carretera y 247.976 vértices. Es útil para un primer fondo vectorial offline, pero NO contiene la red completa peatonal ni los rótulos necesarios.
 - Detalles técnicos, requisitos OSM y dos vías MBTiles documentados en `docs/MAPA_ONLINE_OFFLINE_PLAN.md`.
 - **Pendiente**: probar teselas en dispositivo real, consolidar datos y ubicaciones, seleccionar proveedor de mapas online apto para producción, obtener o construir el paquete MBTiles offline completo, rutas peatonales. Sin generar APK hasta orden del usuario.
+
+## Nuevo hito: vista básica de carreteras SIN INTERNET — 2026-11-16
+- Generado con éxito desde **IDENA / Gobierno de Navarra** el paquete oficial `assets/offline/navarra_road_lines.json` con **17.479 ejes de carretera**, en coordenadas WGS84, simplificación 15 m. Tamaño del JSON: **998.869 bytes**; manifest con SHA-256 y CC BY 4.0 en `assets/offline/navarra_road_manifest.json`.
+- Se incorpora `lib/offline_roads.dart` que carga y valida las geometrías del paquete local, sin conexiones de red.
+- `lib/navarra_map.dart` ofrece selector **Online / Sin Internet**. Online: calles de OpenStreetMap y recursos públicos. Sin Internet: ejes de carreteras IDENA, 399 puntos públicos y acceso a directorio y 112. No hay rutas offline ni callejero urbano completo.
+- En modo offline se muestra advertencia explícita «no todas las calles ni caminos»; atribución a Gobierno de Navarra. La vista online mantiene atribución © OpenStreetMap.
+- Prueba `test/offline_roads_test.dart`: valida número esperado, vértices y límites geográficos. **CI de código (sin APK) run 43888506015: análisis y tests correctos**. No hay capturas ni prueba en teléfono físico.
+- Investigado cruce entre **304 fichas sanitarias** del registro y **336 puntos oficiales IDENA**: códigos `Código Centro` e `IDCENSAN` no tienen coincidencias exactas, según `tools/audit_health_identity.py`; **ninguna identidad se ha asignado automáticamente**. Requiere cruce por nombres y localidades con revisión humana antes de asociar teléfonos.
+- Revisado workflow: las importaciones GIS y auditorías oficiales ya no se ejecutarán en cada commit de código de la rama; quedan separadas por cambios de fuente. La compilación de APK sigue excluida por instrucción del usuario.
+- **No apto para uso público/emergencias**. Pendientes calles urbanas, senderos, etiquetas, rutas peatonales verificadas, disponibilidad de datos públicos, privacidad de proveedor de teselas, QA GPS/cámara y prueba en dispositivos.
