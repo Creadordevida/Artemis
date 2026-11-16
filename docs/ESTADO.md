@@ -135,3 +135,13 @@ CI Android; estructurar plataforma; mapa local básico con paquete real y medici
 - Workflow de rutina de Flutter sin descargas GIS ni generación de APK; importadores por cambios de fuente únicamente.
 - Autorización del usuario: APK solo por razones técnicas. Se ha creado `.github/workflows/map-android-qa.yml` para una **única compilación debug de QA cartográfico**: validar rendimientos, memoria, visualización en móvil y modo avión. Aún no constituye validación física ni versión pública apta para emergencias.
 - **Pendientes:** confirmar build del APK QA, probar Android físico y capturas REALES, analizar FPS/tiempos y memoria, mejorar red viaria peatonal y conectividad de caminos, topónimos, alertas y horarios oficiales. No se generan rutas a pie todavía.
+
+
+## Primer APK de QA cartográfico, no release — 2026-11-16
+- **Decisión justificada**: validar en Android real renderizado de ~65k ejes catastrales, 21k etiquetas, modo avión y FPS/memoria. Solo las pruebas de código no permiten observar esto.
+- Workflow `map-android-qa.yml`: GitHub Actions run **43901299785** completado correctamente; artefacto `artemis-offline-navarra-map-qa` ID `14240614316`, ZIP ~77,7 MB, APK debug ~150 MB. SHA-256 APK: `6462203fc433d8fd197041f0d594389eb0e9ad36b1e53fcbc7a537c5c042f3cb`.
+- **Advertencia**: compila, pero NO consta instalación o captura en terminal real; no se ha validado fluidez, renderizado ni fiabilidad ante emergencias. Este QA procede de un commit anterior a los dos ajustes recientes de UX (offline por defecto y botón de retorno offline al fallar online). Es exclusivamente diagnóstico.
+- Antes de compilar, se añadieron filtrado de geometría por ventana visible y prueba de líneas que cruzan la pantalla (para mitigar coste de 64.893 trazados).
+- Cambios posteriores al artefacto QA: (a) arranque del mapa por defecto offline, sin solicitar teselas por defecto a un proveedor externo; (b) opción «Ver offline» cuando falla el mapa online. Estos cambios requieren nuevas pruebas de fuente; NO están en el artefacto de QA anterior.
+- Corregida duplicación de workflows: `map-android-qa.yml` es **solo manual (`workflow_dispatch`)** y se eliminó el segundo job APK del validador ordinario. Algunas compilaciones anteriores ya lanzadas siguieron ejecutándose; no se programarán automáticamente más APK.
+- Mantener PR #10 en borrador, separado de `develop` hasta verificar mapa offline en dispositivo, privacidad, fuentes y accesibilidad.
