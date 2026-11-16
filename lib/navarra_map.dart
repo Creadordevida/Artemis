@@ -262,19 +262,31 @@ class _NavarraMapPageState extends State<NavarraMapPage> {
                           // a complete, validated asset is bundled. Failure must
                           // never blank the existing offline road overview.
                           if (offlineMode)
-                            FutureBuilder<OfflineStreetPaths>(
-                              future: _streetPaths,
-                              builder: (context, data) => PolylineLayer(
-                                polylines: data.data?.streets ?? const [],
-                              ),
-                            ),
+                            Builder(builder: (mapContext) {
+                              // Do not render tens of thousands of small
+                              // features when showing the whole region.
+                              if (MapCamera.of(mapContext).zoom < 11) {
+                                return const SizedBox.shrink();
+                              }
+                              return FutureBuilder<OfflineStreetPaths>(
+                                future: _streetPaths,
+                                builder: (context, data) => PolylineLayer(
+                                  polylines: data.data?.streets ?? const [],
+                                ),
+                              );
+                            }),
                           if (offlineMode)
-                            FutureBuilder<OfflineStreetPaths>(
-                              future: _streetPaths,
-                              builder: (context, data) => PolylineLayer(
-                                polylines: data.data?.paths ?? const [],
-                              ),
-                            ),
+                            Builder(builder: (mapContext) {
+                              if (MapCamera.of(mapContext).zoom < 12) {
+                                return const SizedBox.shrink();
+                              }
+                              return FutureBuilder<OfflineStreetPaths>(
+                                future: _streetPaths,
+                                builder: (context, data) => PolylineLayer(
+                                  polylines: data.data?.paths ?? const [],
+                                ),
+                              );
+                            }),
                           if (!offlineMode)
                             TileLayer(
                             // Online tiles ONLY; no bulk or offline OSM tile scraping.
