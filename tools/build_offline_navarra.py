@@ -171,6 +171,19 @@ def build(out: Path, downloader=fetch):
             "category": category, "url": url,
             "sha256": hashlib.sha256(raw).hexdigest(), "record_count": len(rows)
         })
+    # Conservative shortlist for an adolescent: exclude private-specialist and
+    # commercial consultations from the primary help entry points. Presence
+    # does NOT imply emergency or 24h availability.
+    primary_types = {"Centros de salud", "Consultorios de atención primaria", "Hospitales generales"}
+    frontline = [entry for entry in combined if
+                 entry["category"] in ("policia_foral", "guardia_civil") or
+                 (entry["category"] == "centro_sanitario" and entry.get("type") in primary_types)]
+    for entry in frontline:
+        entry["emergency_service_confirmed"] = False
+    (out / "navarra_frontline.json").write_text(
+        json.dumps(frontline, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
+    )
+    manifest["frontline_record_count"] = len(frontline)
     (out / "navarra_resources.json").write_text(
         json.dumps(combined, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
