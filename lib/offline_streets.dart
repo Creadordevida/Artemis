@@ -16,8 +16,8 @@ class OfflineStreetPaths {
     required this.labelCount,
   });
 
-  final List<Polyline> streets;
-  final List<Polyline> paths;
+  final List<Polyline<Object>> streets;
+  final List<Polyline<Object>> paths;
   final int labelCount;
 }
 
@@ -48,7 +48,7 @@ OfflineStreetPaths parseOfficialStreetPaths(String encoded) {
   );
 }
 
-List<Polyline> _readLines(dynamic raw, Color color, double width) {
+List<Polyline<Object>> _readLines(dynamic raw, Color color, double width) {
   final lines = raw as List<dynamic>;
   if (lines.length > 50000) {
     throw const FormatException('Abnormal vector line count');
@@ -71,6 +71,6 @@ List<Polyline> _readLines(dynamic raw, Color color, double width) {
       }
       return LatLng(lat, lon);
     }).toList(growable: false);
-    return Polyline(points: coords, strokeWidth: width, color: color);
+    return Polyline<Object>(points: coords, strokeWidth: width, color: color);
   }).toList(growable: false);
 }
